@@ -18,7 +18,7 @@ const Home = () => {
   const { dark } = useContext(DarkModeContext)
 
   const handleDashboardClick = (type) => {
-    console.log("Inside Handle Dashboard Click")
+    console.log("Inside Handle Dashboard Click Home")
     active === 'Explore' && setID(initializeDashboard(type))
     setActive(type)
     setLoading(true)
@@ -27,12 +27,6 @@ const Home = () => {
       pushHistory: true
     })
 
-    // dashboard.send("dashboard:filters:update", {
-    //   filters: {
-    //     "Traffic Source": trafficSource,
-    //   }
-    // })
-    
     dashboard.send("dashboard:run")
   }
 

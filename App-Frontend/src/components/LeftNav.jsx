@@ -80,16 +80,16 @@ const NavGroups = ({group, show}) => {
     const {dashboard, setDashboard, loading, setLoading, id, setID} = useContext(DashboardContext)
 
     const handleDashboardClick = (type) => {
-        console.log("Inside Handle Dashboard Click")
+        console.log("Inside Handle Dashboard Click Left Nav", type)
         active === 'Explore' && setID(initializeDashboard(type))
-        setActive(type)
         setLoading(true)
         dashboard.send("dashboard:load", {
-          id: initializeDashboard(type),
-          pushHistory: true
+            id: initializeDashboard(type),
+            pushHistory: true
         })
-    
+        
         dashboard.send("dashboard:run")
+        setActive(type)
       }
     
       const handleExploreClick = (type) => {
@@ -115,7 +115,7 @@ const NavGroups = ({group, show}) => {
             }
             {group.children.map((child) => 
                 <div className={active === child.name ? "text-zinc-500 dark:text-zinc-400 space-y-4 pl-2 md:pl-4 bg-sky-700/10 rounded-md cursor-pointer" : "space-y-4 pl-2 md:pl-4 rounded-md cursor-pointer"} 
-                    onClick={(e) => e.currentTarget.innerText === 'Explore' || e.currentTarget.innerText === 'Custom' ? handleExploreClick(e.currentTarget.innerText) : handleDashboardClick(e.currentTarget.innerText)}>
+                    onClick={(e) => e.currentTarget.innerText === 'Explore' ? handleExploreClick(e.currentTarget.innerText) : handleDashboardClick(e.currentTarget.innerText)}>
                     {child.name}
                 </div>
             )

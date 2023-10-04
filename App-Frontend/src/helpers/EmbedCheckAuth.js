@@ -34,7 +34,7 @@ export const EmbedCheckAuth = async (type, id, url,active) => {
         }
       case 'explore':
         if(cookie.embedSession !== undefined && (cookie.embedSession.setTime + cookie.embedSession.validFor) > Date.now() && active !== 'Home') {
-          embed = LookerEmbedSDK.createExploreWithUrl(url + `?sdk=2&embed_domain=http://localhost:5173&_theme=Embed_Demo`)
+          embed = LookerEmbedSDK.createExploreWithUrl(url + `?sdk=2&embed_domain=http://localhost:5173&theme=Embed_Demo`)
           break;
         } else {
           // LookerEmbedSDK.init(, '/auth')
