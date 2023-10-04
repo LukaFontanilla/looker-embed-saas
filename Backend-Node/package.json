@@ -1,0 +1,23 @@
+{
+  "name": "backend",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "nodemon ./bin/www",
+    "start": "node ./bin/www"
+  },
+  "dependencies": {
+    "@looker/sdk-node": "^21.0.9",
+    "cookie-parser": "^1.4.6",
+    "cookie-session": "^2.0.0",
+    "cors": "^2.8.5",
+    "create-hmac": "^1.1.7",
+    "debug": "~2.6.9",
+    "dotenv": "^8.2.0",
+    "express": "~4.16.1",
+    "morgan": "~1.9.1",
+    "node-fetch": "^2.7.0",
+    "nodemon": "^2.0.4",
+    "webpack": "^5.65.0"
+  }
+}
