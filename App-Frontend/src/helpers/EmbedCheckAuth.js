@@ -16,7 +16,7 @@ export const EmbedCheckAuth = async (type, id, url,active) => {
     switch(type) {
       case 'dashboard':
         if(cookie.embedSession !== undefined && (cookie.embedSession.setTime + cookie.embedSession.validFor) > Date.now() && active !== 'Home') {
-          embed = LookerEmbedSDK.createDashboardWithUrl(url + id + `?sdk=2&embed_domain=http://localhost:5173&theme=Embed_Demo`)
+          embed = LookerEmbedSDK.createDashboardWithUrl(url + id + `?sdk=2&embed_domain=${import.meta.env.VITE_EMBED_HOST}&theme=Embed_Demo`)
           break;
         } else {
           console.log("No embed session detected. Authenticating...")
@@ -25,7 +25,7 @@ export const EmbedCheckAuth = async (type, id, url,active) => {
         }
       case 'look':
         if(cookie.embedSession !== undefined) {
-          embed = LookerEmbedSDK.createLookWithUrl(url + `?sdk=2&embed_domain=http://localhost:5173&_theme=${StaticThemeObject(type)}`)
+          embed = LookerEmbedSDK.createLookWithUrl(url + `?sdk=2&embed_domain=${import.meta.env.VITE_EMBED_HOST}&_theme=${StaticThemeObject(type)}`)
           break;
         } else {
           // LookerEmbedSDK.init(, '/auth')
@@ -34,7 +34,7 @@ export const EmbedCheckAuth = async (type, id, url,active) => {
         }
       case 'explore':
         if(cookie.embedSession !== undefined && (cookie.embedSession.setTime + cookie.embedSession.validFor) > Date.now() && active !== 'Home') {
-          embed = LookerEmbedSDK.createExploreWithUrl(url + `?sdk=2&embed_domain=http://localhost:5173&theme=Embed_Demo`)
+          embed = LookerEmbedSDK.createExploreWithUrl(url + `?sdk=2&embed_domain=${import.meta.env.VITE_EMBED_HOST}&theme=Embed_Demo`)
           break;
         } else {
           // LookerEmbedSDK.init(, '/auth')
