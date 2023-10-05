@@ -1,0 +1,23 @@
+{
+  "name": "looker-embed-saas",
+  "version": "1.0.0",
+  "description": "This repo contains examples of how to embed Looker into a web application. There are 3 components provided:",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "concurrently \"cd App-Frontend && npm run dev\" \"cd Backend-Node && npm run dev\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LukaFontanilla/looker-embed-saas.git"
+  },
+  "author": "Lukas Fontanilla",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LukaFontanilla/looker-embed-saas/issues"
+  },
+  "homepage": "https://github.com/LukaFontanilla/looker-embed-saas#readme",
+  "dependencies": {
+    "concurrently": "^8.2.1"
+  }
+}
