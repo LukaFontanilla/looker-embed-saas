@@ -2,7 +2,7 @@
 
  This repo contains examples of how to embed Looker into a web application. For getting started it circumvents a user login and allows for anonymous users. In a real world application, user permission and authorization would be handled in a more robust way likely involving an IdP and a user database. There are 2 components provided:
  
-  * [App-Frontend]( ./App-Frontend/README.md) - A sample React application that uses the Looker [Embed SDK](https://docs.looker.com/reference/embed-sdk/embed-sdk-intro) and [Components](https://docs.looker.com/data-modeling/extension-framework/components)
+  * [App-Frontend]( ./App-Frontend/README.md) - A sample React application that uses the Looker [Embed SDK](https://docs.looker.com/reference/embed-sdk/embed-sdk-intro) and API.
 
  * [Node Backend]( ./Backend-Node/README.md) 
 

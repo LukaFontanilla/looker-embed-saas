@@ -1,8 +1,8 @@
 [<img src="https://looker.com/assets/img/images/logos/looker.svg" alt="Looker" width="200"/>](https://www.looker.com)
 
-# Embed Reference - Node Backend
+# Embed Starterkit - Simple Node backend
 
-This application is the backend / server component supporting the [Looker Embed Template](../README.md) of examples for building Embedded [Looker](https://www.looker.com) Solutions.  
+This application is the backend / server component supporting the [Looker Embed Starterkit](../README.md) of examples for building Embedded [Looker](https://www.looker.com) Solutions.  
 
 This [Node](https://nodejs.org) application uses the [Looker API](https://docs.looker.com/reference/api-and-integration) to provide embed urls to the user-facing React [application](../Frontend/).
 
