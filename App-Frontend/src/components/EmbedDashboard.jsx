@@ -44,7 +44,7 @@ const EmbedDashboard = ({id}) => {
     // LookerEmbedSDK.createExploreWithId(id)
       // adds the iframe to the DOM as a child of a specific element
     embed.appendTo(el)
-      .withTheme('Embed_Demo')
+      .withTheme('Embed_Workshop')
       // .withParams({_theme: params})
       .on("explore:ready",(e) => {
         setLoading(false)
@@ -72,13 +72,20 @@ const EmbedDashboard = ({id}) => {
       'dashboard',
       id,
       import.meta.env.VITE_LOOKER_HOST + '/embed/dashboards/',
-      active
+      active,
+      dark
     )
       // adds the iframe to the DOM as a child of a specific element
     // const embed = LookerEmbedSDK.createDashboardWithId(id)
     embed.appendTo(el)
-      .withTheme('Embed_Demo')
+      .withTheme('Embed_Workshop')
       // the .on() method allows us to listen for and respond to events inside the iframe. See here for a list of events: https://docs.looker.com/reference/embedding/embed-javascript-events
+      .on("dashboard:run:start", (e) => {
+        console.log("Dashboard Queries Started")
+      })
+      .on("drillmenu:click", (e) => {
+        console.log("Drill Menu Clicked: ", e)
+      })
       .on("dashboard:run:complete", (e) => {
         setLoading(false)
       })
@@ -99,7 +106,7 @@ const EmbedDashboard = ({id}) => {
 
   return (
     <>
-    {active !== 'Home' && active !== 'Sales' && <div style={{overflow:'hidden', borderRadius: '1rem',display:'flex', position:'absolute', flexDirection:'column', justifyContent:'space-between', width:'90vw',height:'88vh',zIndex:loading || loadingDownload ? 1 : -1}}>
+    {active !== 'Home' && active !== 'Sales' && <div style={{overflow:'hidden',display:'flex', position:'absolute', flexDirection:'column', justifyContent:'space-between', width:'92vw',height:'90vh',zIndex:loading || loadingDownload ? 1 : -1}}>
           <Skeleton animation="pulse" variant="rounded" width={"100%"} height={"100%"} />
     </div>}
     {/* {active !== 'Home' && active !== 'Sales' && 
@@ -131,11 +138,11 @@ const EmbedDashboard = ({id}) => {
 // A little bit of style here for heights and widths.
 const Dashboard = styled.div`
   width: 100%;
-  height: 88vh;
+  height: 100%;
   overflow: hidden;
   z-index: ${props => props.loading ? 0 : 1};
-  border-radius:1rem;
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  ${'' /* border-radius:1rem; */}
+  ${'' /* box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1); */}
   & > iframe {
     width: 100%;
     height: 100%;
@@ -144,15 +151,15 @@ const Dashboard = styled.div`
 
 const DashboardContainer = styled.div`
   width: 100%;
-  height: 88vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
   ${'' /* justify-content: center; */}
   align-items: center;
   align-content: center;
-  padding: 2.5rem;
-  position: ${props => props.active !== 'Home' && props.active !== 'Sales' ? null : 'absolute'};
-  left:${props => props.active !== 'Home' && props.active !== 'Sales' ? null : '-9999px'};
+  ${'' /* padding: 2.5rem; */}
+  position: ${props => props.active !== 'Home' && props.active !== 'Sales' && props.active !== 'New' ? null : 'absolute'};
+  left:${props => props.active !== 'Home' && props.active !== 'Sales' && props.active !== 'New' ? null : '-9999px'};
 `;
 
 export default EmbedDashboard;

@@ -11,7 +11,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: `http://localhost:${process.env.PBL_BACKEND_PORT || '3000'}`,
+        target: `http://localhost:${process.env.PBL_BACKEND_PORT || '8080' || '3000'}`,
         changeOrigin: true,
         secure: false,
       },

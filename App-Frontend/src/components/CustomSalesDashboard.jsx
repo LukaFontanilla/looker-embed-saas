@@ -1,11 +1,12 @@
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Area, AreaChart, CartesianGrid, Label } from "recharts"
-import React, {useContext, useEffect, useState, useMemo, useCallback, memo} from 'react'
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Area, AreaChart, Label } from "recharts"
+import React, { useContext, useEffect, useState } from 'react'
 import { NavContext } from '../contexts/NavContext'
 import { PermissionsContext } from '../contexts/PermissionsContext'
 import { DarkModeContext } from '../contexts/DarkModeContext'
-import { addData, getStoreData } from '../helpers/db'
+import { addData, getStoreData, deleteData } from '../helpers/db'
 import { PieChart, Pie, Sector, Cell } from 'recharts';
 import AccountTable from './AccountTable'
+import QueryStatus from "./QueryStatus"
 
 const data = [
   { name: 'Search', value: 400 },
@@ -55,10 +56,10 @@ const DashboardPieChart = ({trafficSource}) => {
     )
   }
 
-const OverviewViz = memo(({data, type}) => (
+const OverviewViz = ({data, type}) => {
+  return  (
 
   <VizContainer>
-
   {type === 'area' ?
       <AreaChart data={data}>
         <XAxis
@@ -83,7 +84,6 @@ const OverviewViz = memo(({data, type}) => (
         <Tooltip
                     content={({ active, payload }) => {
                       if (active && payload && payload.length) {
-                        console.log(payload)
                         return (
                           <div>
                             <span className="text-[0.70rem] uppercase text-muted-foreground text-black dark:text-white">
@@ -95,12 +95,12 @@ const OverviewViz = memo(({data, type}) => (
                                   Average
                                 </span>
                                 <span className="font-bold text-muted-foreground text-black dark:text-white">
-                                  {yValueFormatter(payload[0].value)}
+                                  {yValueFormatter(payload[0].value  * Math.random())}
                                 </span>
                               </div>
                               <div className="flex flex-col">
                                 <span className="text-[0.70rem] uppercase text-muted-foreground text-black dark:text-white">
-                                  Today
+                                  This Week
                                 </span>
                                 <span className="font-bold text-black dark:text-white">
                                   {yValueFormatter(payload[0].value)}
@@ -141,7 +141,6 @@ const OverviewViz = memo(({data, type}) => (
                     cursor={{fill:'rgb(238,23,148,0.1)'}}
                     content={({ active, payload }) => {
                       if (active && payload && payload.length) {
-                        console.log(payload)
                         return (
                           <div>
                             <span className="text-[0.70rem] uppercase text-muted-foreground text-black dark:text-white">
@@ -153,12 +152,12 @@ const OverviewViz = memo(({data, type}) => (
                                   Average
                                 </span>
                                 <span className="font-bold text-muted-foreground text-black dark:text-white">
-                                  {yValueFormatter(payload[0].value)}
+                                  {yValueFormatter(payload[0].value  * Math.random())}
                                 </span>
                               </div>
                               <div className="flex flex-col">
                                 <span className="text-[0.70rem] uppercase text-muted-foreground text-black dark:text-white">
-                                  Today
+                                  This Week
                                 </span>
                                 <span className="font-bold text-black dark:text-white">
                                   {yValueFormatter(payload[0].value)}
@@ -176,21 +175,21 @@ const OverviewViz = memo(({data, type}) => (
     </BarChart>
     }
   </VizContainer>
-))
+)}
 
 const DashboardCards = ({title, child, value, change}) => {
     return (
         <div className="rounded-xl light:border bg-card bg-white dark:bg-zinc-900 text-card-foreground shadow hover:drop-shadow-lg">
             <div className="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
             <h3 className="tracking-tight text-sm font-medium text-black dark:text-white">
-                {title}
+                {title ? title : ''}
             </h3>
-            {child}
+            {child ? child : ''}
             </div>
             <div className="p-6 pt-0">
-            <div className="text-2xl font-bold text-black dark:text-white">{value}</div>
+            <div className="text-2xl font-bold text-black dark:text-white">{value ? value : ''}</div>
             <p className="text-xs text-muted-foreground text-zinc-500 dark:text-zinc-400">
-                {change}
+                {change ? change : ''}
             </p>
             </div>
         </div>
@@ -275,60 +274,76 @@ const CustomSalesDashboard = () => {
     const {active, setActive} = useContext(NavContext)
     const { sdk } = useContext(PermissionsContext)
     const {dark} = useContext(DarkModeContext)
-    const [cardData, setCardData] = useState(undefined)
-    const [barChartData, setBarChartData] = useState(undefined)
+    const [cardData, setCardData] = useState()
+    const [barChartData, setBarChartData] = useState()
     const [status, setStatus] = useState('')
     const [viz, setViz] = useState('area')
-    const [trafficSource, setTrafficSource] = useState('')
+    const [trafficSource, setTrafficSource] = useState('Search')
 
     useEffect(() => {
         if(active === 'Sales') {
             async function data() {
-                setStatus('Checking for data')
+                setStatus('checkDB')
                 const data = await getStoreData('homepage')
-                if(data.length === 0) {
-                    setStatus('No data found, fetching data')
+                console.log(data)
+                if(data.length === 0 || data[1].length === 0) {
+                    await deleteData('homepage')
+                    setStatus('fetching')
                     const queryResponses = await Promise.all([
-                        await sdk.ok(sdk.run_query(
+                                await sdk.ok(sdk.run_query(
                                 {
-                                    query_id: '4240', // the id of the query in Looker revenue, subscriptions, sales, active now
+                                    query_id: '53147', //'4240', // the id of the query in Looker revenue, subscriptions, sales, active now
                                     result_format: 'json',
                                     apply_formatting: true,
                                     cache: true
                                 })),
-                        await sdk.ok(sdk.run_query(
-                                    {
-                                    query_id: '4273',
-                                    result_format: 'json',
-                                    // apply_formatting: true,
-                                    cache: true
-                                }))
+                                /**
+                                 * This is the query for the bar chart, please follow the steps below
+                                 * Step 1: Remove the empty array below and uncomment the lines below it
+                                 * Step 2: Take the query id from Looker and fill it in the query_id field
+                                 * Step 3: Save the code change and the bar chart should appear
+                                 */
+
+                                []
+                                // await sdk.ok(sdk.run_query(
+                                // {
+                                //     query_id: '', //'53185', // the id of the query in Looker for revenue over time
+                                //     result_format: 'json',
+                                //     cache: true
+                                // }))
                     ])
-                    console.log(queryResponses)
-                    setStatus('Data fetched, adding to database')
+                    setStatus('AddToDB')
                     await Promise.all([
                         await addData('homepage',queryResponses[0][0]),
                         await addData('homepage',queryResponses[1])
                     ])
-                    setStatus('Data added to database')
+                    setStatus('AddedToDB')
                     const fetchData = await getStoreData('homepage')
-                    console.log(fetchData)
-                    setStatus('Data fetched from database')
-                    setCardData(fetchData[0])
-                    setBarChartData(fetchData[1])
+                    return fetchData
                 }
-
-                setCardData(data[0])
-                setBarChartData(data[1])
+                
+                setStatus('fetchedFromDB')
+                return data
             }
-            data()
+            data().then(res => {
+                setCardData(res[0])
+                setBarChartData(res[1])
+                setStatus('fetchedFromDB')
+                setTimeout(() => setStatus(''), 2000)
+            })
         }
     },[active])
 
     return (
-        <div id="sales" className={`${active === 'Sales' ? 'z-1' : '-z-10'} p-10 space-y-4 w-[90vw] ${active === 'Sales' ? 'absolute' : 'fixed'}`}>
+        <div id="sales" className={`${active === 'Sales' ? 'z-1' : '-z-10'} p-4 space-y-4 w-[90vw] ${active === 'Sales' ? 'absolute' : 'fixed'}`}>
+        {status ? <QueryStatus  status={status}/> : <></>}
         <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 h-1/6 items-center justify-center content-center">
-            {cardData && DashboardCardsConfig.map((card,index) => <DashboardCards title={card.title} child={card.child} value={cardData[Object.keys(cardData)[index]]} change={card.change} />)}
+            {cardData !== undefined ? 
+              DashboardCardsConfig.map((card,index) => <DashboardCards title={card.title} child={card.child} value={cardData[Object.keys(cardData)[index]]} change={card.change} />)
+              :
+              DashboardCardsConfig.map((card,index) => <DashboardCards title={card.title} child={card.child} value={false} change={card.change} />)
+            }
+            {/* {DashboardCardsConfig.map((card,index) => <DashboardCards title={card.title} child={card.child} value={cardData && Object.keys(cardData).length > 0 ? cardData[Object.keys(cardData)[index]] : false} change={card.change} />)} */}
         </div>
         <div className="grid gap-y-4 gap-x-0 xl:gap-4 grid-cols-1 lg:grid-cols-1 xl:grid-cols-6">
             <div className="col-span-5 rounded-xl light:border bg-card text-card-foreground bg-white dark:bg-zinc-900 shadow hover:brightness-100 hover:drop-shadow-lg">
@@ -346,7 +361,7 @@ const CustomSalesDashboard = () => {
                 </div>
               </div>
               <div className="p-6 pt-0 pl-2">
-                {barChartData && <OverviewViz data={barChartData} type={viz}/>}
+                {barChartData !== undefined ? <OverviewViz data={barChartData} type={viz}/> : <></> }
               </div>
             </div>
             <div className="grid grid-cols-1 gap-4">

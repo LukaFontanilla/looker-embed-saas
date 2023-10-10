@@ -1,22 +1,20 @@
-# Looker Embed Reference 
+# Looker Embed Application Starterkit
 
- This repo contains examples of how to embed Looker into a web application. There are 3 components provided:
+ This repo contains examples of how to embed Looker into a web application. For getting started it circumvents a user login and allows for anonymous users. In a real world application, user permission and authorization would be handled in a more robust way likely involving an IdP and a user database. There are 2 components provided:
  
-  * [Frontend]( ./Frontend/README.md) - A sample React application that uses the Looker [Embed SDK](https://docs.looker.com/reference/embed-sdk/embed-sdk-intro) and [Components](https://docs.looker.com/data-modeling/extension-framework/components)
+  * [App-Frontend]( ./App-Frontend/README.md) - A sample React application that uses the Looker [Embed SDK](https://docs.looker.com/reference/embed-sdk/embed-sdk-intro) and [Components](https://docs.looker.com/data-modeling/extension-framework/components)
 
  * [Node Backend]( ./Backend-Node/README.md) 
 
- * [Java Backend]( ../Backend-Java/README.md)
-
- This is intended to be an example application, and shows many different ways of embedding Looker in another site.  It demonstrates several similar ways to include a dashboard or visualization, and all of these techniques are valid.  The examples that this application uses come from a 'data block' provided by Looker, using a public data set.  
+ This is intended to be an example application, and shows many different ways of embedding Looker in another site.  It demonstrates several similar ways to include a dashboard or visualization, and all of these techniques are valid.  The examples that this application uses will come from your Looker instance.
  
  ## Getting Started
 
- 1. Install and run the [Frontend]( ./Frontend/README.md) web app using the integrated development server. 
- 2. Install and run either the [Node]( ./Backend-Node/README.md) or [Java]( ./Backend-Java/README.md) backend.
+ 1. Install and run the [App-Frontend]( ./App-Frontend/README.md) web app using the integrated development server. 
+ 2. Install and run either the [Node]( ./Backend-Node/README.md) backend.
 
 
-The frontend React application serves a static web site.  It relies on a backend server ([node](./Backend-Node/README.md), or [java](./Backend-Java/README.md)) to communicate securely with Looker.  To show Looker Dashboards or Looks, the frontend server requests a [Signed SSO URL](https://docs.looker.com/reference/embedding/sso-embed) from the backend server.  This URL is then added to an iframe on the site.  Inside the iframe, the dashboard or Look is served directly from the Looker server. 
+The frontend React application serves a static web site.  It relies on a backend server ([node](./Backend-Node/README.md) to communicate securely with Looker.  To show Looker Dashboards or Looks, the frontend server requests a [Signed SSO URL](https://docs.looker.com/reference/embedding/sso-embed) from the backend server.  This URL is then added to an iframe on the site.  Inside the iframe, the dashboard or Look is served directly from the Looker server. 
 
 ## Contributing
 

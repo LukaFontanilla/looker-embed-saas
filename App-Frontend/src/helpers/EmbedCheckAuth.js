@@ -8,7 +8,7 @@ import { StaticThemeObject } from './StaticThemeObject'
  * @param {string} url of embedded content (should include embed domain and any theme customizations)
  * @returns {EmbedBuilder<LookerEmbedDashboard | LookerEmbedExplore | LookerEmbedLook>}
  */
-export const EmbedCheckAuth = async (type, id, url,active) => {
+export const EmbedCheckAuth = async (type, id, url,active,dark) => {
     const cookie = await fetch('/api/getcookie').then(res => res.json())
     let embed;
     // add switch statement checking if dashboard, explore, or look
@@ -16,7 +16,8 @@ export const EmbedCheckAuth = async (type, id, url,active) => {
     switch(type) {
       case 'dashboard':
         if(cookie.embedSession !== undefined && (cookie.embedSession.setTime + cookie.embedSession.validFor) > Date.now() && active !== 'Home') {
-          embed = LookerEmbedSDK.createDashboardWithUrl(url + id + `?sdk=2&embed_domain=${import.meta.env.VITE_EMBED_HOST}&theme=Embed_Demo`)
+          console.log("Url: ", url + id + `?sdk=2&embed_domain=${import.meta.env.VITE_EMBED_HOST}&theme=${import.meta.env.VITE_EMBED_THEME}`)
+          embed = LookerEmbedSDK.createDashboardWithUrl(url + id + `?sdk=2&embed_domain=${import.meta.env.VITE_EMBED_HOST}&theme=${import.meta.env.VITE_EMBED_THEME}`)
           break;
         } else {
           console.log("No embed session detected. Authenticating...")
@@ -34,7 +35,7 @@ export const EmbedCheckAuth = async (type, id, url,active) => {
         }
       case 'explore':
         if(cookie.embedSession !== undefined && (cookie.embedSession.setTime + cookie.embedSession.validFor) > Date.now() && active !== 'Home') {
-          embed = LookerEmbedSDK.createExploreWithUrl(url + `?sdk=2&embed_domain=${import.meta.env.VITE_EMBED_HOST}&theme=Embed_Demo`)
+          embed = LookerEmbedSDK.createExploreWithUrl(url + `?sdk=2&embed_domain=${import.meta.env.VITE_EMBED_HOST}&theme=${import.meta.env.VITE_EMBED_THEME}`)
           break;
         } else {
           // LookerEmbedSDK.init(, '/auth')

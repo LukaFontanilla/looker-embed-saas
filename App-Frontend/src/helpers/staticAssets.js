@@ -39,15 +39,15 @@ export const homePageConfig = [
       "sub-sections": [
         {
           "title": "Sales",
-          "description": "Sales Insights. Includes sales by region, sales by product, and sales by salesperson.",
+          "description": "Insights broken down overtime, by company, with period comparisons",
         },
         {
           "title": "Marketing",
-          "description": "Digital Marketing Insights. Includes marketing spend by channel, marketing spend by campaign, and marketing spend by region.",
+          "description": "Insights including spend by channel & campaign, acquisition trends, and conversion rates.",
         },
         {
           "title": "Finance",
-          "description": "Financial Analytics Insights. Includes revenue by region, revenue by product, and revenue by salesperson.",
+          "description": "Insights around revenue by region, product, and salesperson.",
         }
       ]
     },

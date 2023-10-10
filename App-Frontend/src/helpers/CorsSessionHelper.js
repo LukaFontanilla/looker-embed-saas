@@ -70,18 +70,16 @@ class PblSession extends AuthSession {
 class PblSessionEmbed extends PblSession {
   fetchToken() {
     return fetch(
-      // The token user is here set to be a Looker 'user1'
+      // The token user is here set to the static user variable on the backend.
       // In real applications, you would pass the actual, 
       // logged in user to the backend instead.
       // The backend would then handle assigning appropriate permissions to the user.
-      "/api/embed-user/token?id=user1"
+      "/api/embed-user/token"
     );
   }
 }
 
 // This creates a new session with the 'real' address used above
-
-console.log("host: ",import.meta.env.VITE_LOOKER_API_HOST)
 const session = new PblSessionEmbed({
   ...DefaultSettings,
   base_url: import.meta.env.VITE_LOOKER_API_HOST

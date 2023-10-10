@@ -44,11 +44,6 @@ const Footer = () => {
                     <Chip label="Search" variant={trafficSource === 'Search' ? "filled" : "outlined"} class="text-white border rounded-xl w-1/4 m-1" onClick={(e) => setTrafficSource(e.target.textContent)}/>
                     <Chip label="Email" variant={trafficSource === 'Email' ? "filled" : "outlined"} class="text-white border rounded-xl w-1/4 m-1" onClick={(e) => setTrafficSource(e.target.textContent)}/>
                 </div>
-                <div className="bg-white dark:bg-black shadow-lg p-2 rounded-xl h-40 w-full hover:brightness-125 hover:drop-shadow-lg" id="svgBackground2">
-                <h3 className="text-xl font-bold mb-2 mt-4 text-white">Company</h3>
-                    {/* <Chip label="Calvin Klein" variant={company === 'Calvin Klein' ? "filled" : "outlined"} class="text-white border rounded-xl w-1/2 m-1" onClick={(e) => setCompany(e.target.textContent)}/>
-                    <Chip label="Levi's" variant={company === "Levi's" ? "filled" : "outlined"} class="text-white border rounded-xl w-1/4 m-1" onClick={(e) => setCompany(e.target.textContent)}/> */}
-                </div>
             </div>
             <div className="flex flex-col justify-between align-star w-full mt-6">
                 <h3 className="text-xl font-bold mb-2 mt-4 dark:text-white text-black">Permissions</h3>

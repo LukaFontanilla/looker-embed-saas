@@ -102,7 +102,7 @@ function App() {
       <TopBanner />
       <div className="flex flex-1 overflow-hidden" >
         <LeftNav />
-        <main className="flex-1 overflow-y-scroll p-4 bg-zinc-50 dark:bg-black" onClick={() => setShow(false)}>
+        <main className={`flex-1 overflow-y-scroll ${active !== 'Home' && active !== 'Sales' ? 'p-0' : 'p-4'} bg-zinc-50 dark:bg-black`} onClick={() => setShow(false)}>
           <div className="grid gap-1 h-full relative" >
           <Routes>
             <Route

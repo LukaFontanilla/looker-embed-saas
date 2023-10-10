@@ -59,6 +59,21 @@ export const addData = (storeName, data, key) => {
     });
   };
 
+  export const deleteData = (storeName) => {
+    return new Promise((resolve) => {
+      request = indexedDB.open('myDB');
+  
+      request.onsuccess = () => {
+        // console.log('request.onsuccess - deleteData');
+        db = request.result;
+        const tx = db.transaction(storeName, 'readwrite');
+        const store = tx.objectStore(storeName);
+        store.clear();
+        resolve(true);
+      };
+    });
+  }
+
   export const getStoreData = (storeName) => {
     return new Promise((resolve) => {
       request = indexedDB.open('myDB');

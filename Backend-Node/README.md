@@ -2,7 +2,7 @@
 
 # Embed Reference - Node Backend
 
-This application is the backend / server component supporting the [reference implementation library](../README.md) of examples for building Embedded [Looker](https://www.looker.com) Solutions.  
+This application is the backend / server component supporting the [Looker Embed Template](../README.md) of examples for building Embedded [Looker](https://www.looker.com) Solutions.  
 
 This [Node](https://nodejs.org) application uses the [Looker API](https://docs.looker.com/reference/api-and-integration) to provide embed urls to the user-facing React [application](../Frontend/).
 

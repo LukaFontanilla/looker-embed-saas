@@ -30,9 +30,7 @@ config.authenticatedUser =
   user1: {
     //The external user ID should be a unique value from your system
     // "target_url": "https://dec1c6a1-9302-4033-8881-4a1ee4fd7c8e.looker.app/embed/dashboards/thelook::business_pulse",
-    "external_user_id": "user1",
-    "first_name": "Pat",
-    "last_name": "Embed",
+    // "external_user_id": "user1",
     "session_length": 3600,
     "force_logout_login": true,
     // The external_group_id is an arbitrary id, usually from an IdP
@@ -66,14 +64,12 @@ config.authenticatedUser =
       "schedule_external_look_emails"
     ],
     // Models are mandatory; an emebd user can only see content and data using these models
-    "models": ["thelook","thelook_adwords","sfdc_demo","dashboard-match","ga4"],
+    "models": ["thelook","thelook_adwords","sfdc_demo","dashboard-match","ga4","gaming"],
     "user_attributes": { "locale": "en" }
   },
   user2: {
     // "target_url": "https://dec1c6a1-9302-4033-8881-4a1ee4fd7c8e.looker.app/embed/dashboards/thelook::business_pulse",
-    "external_user_id": "user2",
-    "first_name": "Jane",
-    "last_name": "Doe",
+    // "external_user_id": "user2",
     "session_length": 3600,
     "force_logout_login": true,
     "external_group_id": "group2",
@@ -85,7 +81,7 @@ config.authenticatedUser =
       "see_user_dashboards",
       "see_lookml_dashboards"
     ],
-    "models": ["thelook","thelook_adwords","sfdc_demo","dashboard-match","ga4"],
+    "models": ["thelook","thelook_adwords","sfdc_demo","dashboard-match","ga4","gaming"],
     //user2 will be localized into a different language
     "user_attributes": { "locale": "en" }
   }

@@ -32,6 +32,9 @@ const LeftNav = () => {
                 {
                     name: "Finance",
                     path: "/insights/finance"
+                },
+                {
+                    name: "New"
                 }
             ]
         },
