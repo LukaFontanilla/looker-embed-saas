@@ -1,66 +1,119 @@
-import { useState, useEffect, useContext } from 'react'
-import './App.css'
-import LeftNav from './components/LeftNav'
+import { useState, useEffect, useContext } from "react";
+import "./App.css";
+import LeftNav from "./components/LeftNav";
 import { LookerEmbedSDK } from "@looker/embed-sdk";
-import {NavContext}  from './contexts/NavContext'
-import {DashboardContext}  from './contexts/DashboardContext'
-import { PermissionsContext } from './contexts/PermissionsContext'
-import TopBanner from './components/TopBanner'
-import Footer from './components/Footer'
-import Home from './components/Home'
-import { sdk } from './helpers/CorsSessionHelper'
-import { initDB } from './helpers/db'
-import { initializeDashboard } from './helpers/staticAssets'
+import { NavContext } from "./contexts/NavContext";
+import { DashboardContext } from "./contexts/DashboardContext";
+import { PermissionsContext } from "./contexts/PermissionsContext";
+import TopBanner from "./components/TopBanner";
+import Footer from "./components/Footer";
+import Home from "./components/Home";
+import { sdk } from "./helpers/CorsSessionHelper";
+import { initDB } from "./helpers/db";
+import { initializeDashboard } from "./helpers/staticAssets";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
   Link,
-  useLocation
+  useLocation,
 } from "react-router-dom";
-import { DarkModeContext } from './contexts/DarkModeContext';
+import { DarkModeContext } from "./contexts/DarkModeContext";
+import SSOEmbedComponent from "./components/SSOEmbedComponent";
+import CustomSalesDashboard from "./components/CustomSalesDashboard";
+import EmbedDashboardFinance from "./components/EmbedDashboardFinance";
+import EmbedDashboardMarketing from "./components/EmbedDashboardMarketing";
+import EmbedExplore from "./components/EmbedExplore";
 
+const routes = {
+  title: "Embed Examples",
+  use_case_examples: [
+    {
+      url: "/insights/sales",
+      text: "Sales Insights",
+      component: <CustomSalesDashboard />,
+      path: "CustomSalesDashboard.js",
+      codeFileName: "CustomSalesDashboard",
+    },
+  ],
+  looker_examples: [
+    {
+      url: "/",
+      text: "Home",
+      component: <Home />,
+    },
+    {
+      url: "/insights/new",
+      text: "Private Embed",
+      component: <SSOEmbedComponent />,
+      path: "SSOEmbedComponent.js",
+      codeFileName: "SSOEmbedComponent",
+    },
+    {
+      url: "/insights/marketing",
+      text: "Marketing Insights",
+      component: <EmbedDashboardMarketing />,
+      path: "EmbedDashboard/EmbedDashboard.js",
+      codeFileName: "EmbedDashboard",
+    },
+    {
+      url: "/insights/finance",
+      text: "Finance Insights",
+      component: <EmbedDashboardFinance />,
+      path: "EmbedDashboardWFilters/EmbedDashboardWFilters.js",
+      codeFileName: "EmbedDashboardWFilters",
+    },
+    {
+      url: "/self-service/explore",
+      text: "Embedded Explore",
+      component: <EmbedExplore />,
+      path: "EmbedExplore/EmbedExplore.js",
+      codeFileName: "EmbedExplore",
+    },
+  ],
+};
 
 function App() {
-  const [count, setCount] = useState(0)
-  const [active, setActive] = useState('Home')
-  const [show, setShow] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const [dashboard, setDashboard] = useState()
-  const [locale, setLocale] = useState('en')
-  const [trafficSource, setTrafficSource] = useState('')
-  // const [company, setCompany] = useState('Calvin Klein')
-  const [pdf, setPdf] = useState(true)
-  const [permissions, setPermissions] = useState([])
-  const [id, setID] = useState(import.meta.env.VITE_SALES_DASHBOARD_ID)
-  const [dark, setDark] = useState(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+  const [count, setCount] = useState(0);
+  const [active, setActive] = useState("Home");
+  const [show, setShow] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [dashboard, setDashboard] = useState();
+  const [locale, setLocale] = useState("en");
+  const [trafficSource, setTrafficSource] = useState("");
+  const [pdf, setPdf] = useState(true);
+  const [permissions, setPermissions] = useState([]);
+  const [id, setID] = useState(import.meta.env.VITE_SALES_DASHBOARD_ID);
+  const [dark, setDark] = useState(
+    window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light",
+  );
 
   const EmbedSDKInit = () => {
-        LookerEmbedSDK.init(
-            import.meta.env.VITE_LOOKERSDK_EMBED_HOST,
-            {
-              // The location of the service which will privately create a signed URL
-              url: '/api/auth'
-              , headers: [
-                // include some factor which your auth service can use to uniquely identify a user, so that a user specific url can be returned. This could be a token or ID
-                { name: 'usertoken', value: 'user1' }
-              ]
-            }
-        )
-    }
+    LookerEmbedSDK.init(import.meta.env.VITE_LOOKERSDK_EMBED_HOST, {
+      // The location of the service which will privately create a signed URL
+      url: "/api/auth",
+      headers: [
+        // include some factor which your auth service can use to uniquely identify a user, so that a user specific url can be returned. This could be a token or ID
+        { name: "usertoken", value: "user1" },
+      ],
+    });
+  };
   EmbedSDKInit();
 
   useEffect(() => {
     // initialize indexdb
-    initDB()
-  },[])
+    initDB();
+  }, []);
 
   useEffect(() => {
-    fetch('/api/permissions', {
-      method:'POST',
+    fetch("/api/permissions", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         permissions: {
@@ -68,72 +121,113 @@ function App() {
         },
         userAttributes: {
           locale: locale,
-        }
-      })
-      })
-      .then(res => {
-        setID(initializeDashboard(active))
-        setPermissions([locale,pdf])
-      })
-  }, [locale,pdf])
+        },
+      }),
+    }).then((res) => {
+      setID(initializeDashboard(active));
+      setPermissions([locale, pdf]);
+    });
+  }, [locale, pdf]);
 
   useEffect(() => {
-    if(dashboard && trafficSource !== '') {
+    if (dashboard && trafficSource !== "") {
       dashboard.send("dashboard:filters:update", {
         filters: {
-          "Traffic Source": trafficSource
-        }
-      })
-      
-      dashboard.send("dashboard:run")
-    }
-  },[trafficSource])
+          "Traffic Source": trafficSource,
+        },
+      });
 
+      dashboard.send("dashboard:run");
+    }
+  }, [trafficSource]);
 
   return (
     <>
-    <NavContext.Provider value={{active, setActive}}>
-    <DarkModeContext.Provider value={{dark, setDark}}>
-    <DashboardContext.Provider value={{dashboard, setDashboard, loading, setLoading, id, setID}}>
-    <PermissionsContext.Provider value={{sdk, locale, setLocale, trafficSource, setTrafficSource, pdf, setPdf, show, setShow, permissions}}>
-    <Router>
-      <div className={dark ? 'dark' : 'light'}>
-      <div className="flex flex-col h-screen w-screen bg-white dark:bg-black" >
-      <TopBanner />
-      <div className="flex flex-1 overflow-hidden" >
-        <LeftNav />
-        <main className={`flex-1 overflow-y-scroll ${active !== 'Home' && active !== 'Sales' ? 'p-0' : 'p-4'} bg-zinc-50 dark:bg-black`} onClick={() => setShow(false)}>
-          <div className="grid gap-1 h-full relative" >
-          <Routes>
-            <Route
-              exact
-              default
-              path="/"
-              element={<Home />}
-            />
+      <NavContext.Provider value={{ active, setActive }}>
+        <DarkModeContext.Provider value={{ dark, setDark }}>
+          <DashboardContext.Provider
+            value={{ dashboard, setDashboard, loading, setLoading, id, setID }}
+          >
+            <PermissionsContext.Provider
+              value={{
+                sdk,
+                locale,
+                setLocale,
+                trafficSource,
+                setTrafficSource,
+                pdf,
+                setPdf,
+                show,
+                setShow,
+                permissions,
+              }}
+            >
+              <Router>
+                <div className={dark ? "dark" : "light"}>
+                  <div className="flex flex-col h-screen w-screen bg-white dark:bg-black">
+                    <TopBanner />
+                    <div className="flex flex-1 overflow-hidden">
+                      <LeftNav />
+                      <main
+                        className={`flex-1 overflow-y-scroll ${
+                          active !== "Home" && active !== "Sales"
+                            ? "p-0"
+                            : "p-4"
+                        } bg-zinc-50 dark:bg-black`}
+                        onClick={() => setShow(false)}
+                      >
+                        <div className="grid gap-1 h-full relative">
+                          <Routes>
+                            <Route
+                              exact
+                              path="/"
+                              element={
+                                <>
+                                  {
+                                    [
+                                      ...routes.looker_examples,
+                                      ...routes.use_case_examples,
+                                    ][0].component
+                                  }
+                                </>
+                              }
+                            />
 
-           
-            {/* <div className="h-96 rounded-lg bg-zinc-100 dark:bg-zinc-800"  />
-            <div className="h-96 rounded-lg bg-zinc-100 dark:bg-zinc-800"  /> */}
-            {/* <Route
-                  exact
-                  path="/analytics"
-                  element={<AnalyticsPage />}/> */}
-            {/* {active === 'Custom' && <NLQExplore />} */}
-          </Routes>
-          </div>
-        </main>
-      </div>
-      <Footer />
-    </div>
-    </div>
-    </Router>
-    </PermissionsContext.Provider>
-    </DashboardContext.Provider>
-    </DarkModeContext.Provider>
-    </NavContext.Provider>
+                            {[
+                              ...routes.looker_examples,
+                              ...routes.use_case_examples,
+                            ]
+                              .slice(
+                                1,
+                                [
+                                  ...routes.looker_examples,
+                                  ...routes.use_case_examples,
+                                ].length,
+                              )
+                              .map((e) => {
+                                return (
+                                  <Route
+                                    path={e.url}
+                                    default
+                                    element={<>{e.component}</>}
+                                    key={e.text}
+                                  />
+                                );
+                              })}
+                          </Routes>
+                        </div>
+                      </main>
+                    </div>
+                    <Footer />
+                  </div>
+                </div>
+              </Router>
+            </PermissionsContext.Provider>
+          </DashboardContext.Provider>
+        </DarkModeContext.Provider>
+      </NavContext.Provider>
     </>
-  )
+  );
 }
 
-export default App
+export default App;

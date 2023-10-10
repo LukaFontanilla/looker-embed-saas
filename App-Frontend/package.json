@@ -26,6 +26,7 @@
     "react-dom": "^18.2.0",
     "react-is": "16.11",
     "react-router-dom": "6.2.1",
+    "react-spinners": "^0.13.8",
     "recharts": "^2.7.3",
     "styled-components": "5.3.3"
   },

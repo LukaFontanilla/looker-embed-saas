@@ -1,21 +1,12 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { NavContext } from "../contexts/NavContext";
 import EmbedDashboard from "./EmbedDashboard";
-import CustomSalesDashboard from "./CustomSalesDashboard";
 import { DashboardContext } from "../contexts/DashboardContext";
 import { PermissionsContext } from "../contexts/PermissionsContext";
 import { DarkModeContext } from "../contexts/DarkModeContext";
 import { initializeDashboard, homePageConfig } from "../helpers/staticAssets";
 import HomepageLineChartContainer from "./HomepageLineChart";
-import SSOEmbedComponent from "./SSOEmbedComponent";
-
-/**
- * Static Dashboard ID For Workshop
- * Step 1: Grab Dashboard ID from Looker Instance
- * Step 2: Add Dashboard ID to dashboardID variable below
- */
-
-const dashboardID = "";
 
 const Home = () => {
   const { active, setActive } = useContext(NavContext);
@@ -23,6 +14,11 @@ const Home = () => {
     useContext(DashboardContext);
   const { trafficSource, locale, pdf } = useContext(PermissionsContext);
   const { dark } = useContext(DarkModeContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    setActive("Home");
+  }, []);
 
   const handleDashboardClick = (type) => {
     active === "Explore" && setID(initializeDashboard(type));
@@ -36,21 +32,17 @@ const Home = () => {
     dashboard.send("dashboard:run");
   };
 
-  const handleExploreClick = (type) => {
-    setActive(type);
-    setLoading(true);
-    setID(null);
+  const handleClick = (data) => {
+    setActive(data);
+    console.log(data);
+    data !== "Explore"
+      ? navigate(`/insights/${data.toLowerCase()}`)
+      : navigate(`/self-service/explore`);
   };
 
   return (
     <>
-      <div
-        className={`p-4 ${active === "Home" ? "block" : "fixed"} ${
-          active === "Home" ? "z-1" : "-z-20"
-        }`}
-        style={{ height: "70vh" }}
-        id="home"
-      >
+      <div className={`p-4 z-1`} style={{ height: "70vh" }} id="home">
         <section className="mb-14">
           <h2 className="text-4xl font-bold mb-4 text-black dark:text-white">
             Welcome!
@@ -83,13 +75,7 @@ const Home = () => {
             >
               {section["sub-sections"].map((subsection, index) => (
                 <div>
-                  <div
-                    onClick={() =>
-                      subsection.title === "Explore"
-                        ? handleExploreClick(subsection.title)
-                        : handleDashboardClick(subsection.title)
-                    }
-                  >
+                  <div onClick={() => handleClick(subsection.title)}>
                     <div
                       className="bg-white flex justify-center items-center dark:bg-black shadow-lg p-2 rounded-xl h-40 hover:brightness-125 hover:drop-shadow-lg mb-2"
                       id={"svgBackground" + (index + 2).toString()}
@@ -115,21 +101,7 @@ const Home = () => {
           </section>
         ))}
       </div>
-      <EmbedDashboard id={id || import.meta.env.VITE_SALES_DASHBOARD_ID} />
-      <CustomSalesDashboard />
-      {active === "New" ? (
-        <SSOEmbedComponent
-          url={
-            dashboardID !== ""
-              ? import.meta.env.VITE_LOOKER_HOST +
-                "/embed/dashboards/" +
-                dashboardID
-              : ""
-          }
-        />
-      ) : (
-        <> </>
-      )}
+      <EmbedDashboard id={import.meta.env.VITE_SALES_DASHBOARD_ID} />
     </>
   );
 };
