@@ -31,37 +31,64 @@ const fetch = require("node-fetch");
 //   credential: admin.credential.cert(serviceAccount)
 // });
 
-/**
- * Global User Variable For Workshop Purposes
- * Step 1: Replace the value of lookerExternalUserID with {your_name}-Embed
- */
-
-let lookerExternalUserID = "Luka-Embed";
-
 /***********************************************
  * Middleware For Checking User Session cookie *
  ***********************************************/
 const requireSessionCookie = (request, response, next) => {
-  console.log(request.headers.cookie);
-  console.log(request.cookies);
-  // if (!request.cookie) {
-  //   response.status(404).send({ redirect: "/login" });
-  // } else {
-  next();
-  // }
+  if (!request.cookies && !request.cookies.embedSession) {
+    response.status(404).send({ redirect: "/login" });
+  } else {
+    next();
+  }
 };
 
 /*****************************************
  * Authentication                        *
  *****************************************/
 
+router.get("/auth", async (req, res) => {
+  let options = {
+    maxAge: 3600000, // expires in an hour
+    httpOnly: true, // The cookie only accessible by the web server
+    signed: false, // Indicates if the cookie should be signed
+  };
+
+  const src = req.query.src;
+  const fullEmbedUrl = "https://" + process.env.LOOKERSDK_EMBED_HOST + src;
+  const user = {
+    ...config.authenticatedUser[req.headers.usertoken],
+    external_user_id: req.headers.userid,
+  };
+
+  try {
+    const { url } = await sdk.ok(
+      sdk.create_sso_embed_url({ target_url: fullEmbedUrl, ...user }),
+    );
+    // Set cookie
+    res.cookie(
+      "embedSession",
+      { setTime: Date.now(), validFor: 3600000, userID: req.headers.userid },
+      options,
+    );
+
+    res.json({ url });
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+// Route for getting all the cookies
+router.get("/getcookie", function (req, res) {
+  res.json(req.cookies);
+});
+
 /**
  * Create an API auth token based on the provided embed user credentials
  */
-router.get("/embed-user/token", async (req, res) => {
-  console.log("Cookie: ", req.cookie);
-  console.log(req.headers.cookie);
-  const userCred = await sdk.ok(sdk.user_for_credential("embed", "lukapuka"));
+router.get("/embed-user/token", requireSessionCookie, async (req, res) => {
+  const userCred = await sdk.ok(
+    sdk.user_for_credential("embed", req.cookies.embedSession.userID),
+  );
   const embed_user_token = await sdk.login_user(userCred.id.toString());
   const u = {
     user_token: embed_user_token.value,
@@ -74,13 +101,13 @@ router.get("/embed-user/token", async (req, res) => {
  * Update the embed users permissions
  */
 
-router.post("/permissions", async (req, res) => {
+router.post("/permissions", requireSessionCookie, async (req, res) => {
   const { permissions, userAttributes } = req.body;
   let user = config.authenticatedUser["user1"];
 
   const userObject = {
     ...user,
-    external_user_id: req.cookie ? req.cookie.id : "",
+    external_user_id: req.cookies.embedSession.userID,
   };
 
   userObject["user_attributes"] = userAttributes;
@@ -96,43 +123,6 @@ router.post("/permissions", async (req, res) => {
   );
   await fetch(url);
   res.status(200).send({ message: "Updated Permissions" });
-});
-
-router.get("/auth", async (req, res) => {
-  let options = {
-    maxAge: 3600000, // expires in an hour
-    httpOnly: true, // The cookie only accessible by the web server
-    signed: false, // Indicates if the cookie should be signed
-  };
-
-  // Set cookie
-  res.cookie(
-    "embedSession",
-    { id: req.headers.user_id, setTime: Date.now(), validFor: 3600000 },
-    options,
-  ); // options is optional
-  console.log("auth endpoint hit");
-  const src = req.query.src;
-  const fullEmbedUrl = "https://" + process.env.LOOKERSDK_EMBED_HOST + src;
-  const user = {
-    ...config.authenticatedUser[req.headers.usertoken],
-    external_user_id: req.headers.user_id,
-  };
-
-  try {
-    const { url } = await sdk.ok(
-      sdk.create_sso_embed_url({ target_url: fullEmbedUrl, ...user }),
-    );
-    res.json({ url });
-  } catch (e) {
-    console.log(e);
-  }
-});
-
-// Route for getting all the cookies
-router.get("/getcookie", function (req, res) {
-  console.log(req.cookies);
-  res.json(req.cookies);
 });
 
 module.exports = router;

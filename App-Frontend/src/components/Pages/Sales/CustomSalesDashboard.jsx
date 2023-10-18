@@ -355,7 +355,7 @@ const CustomSalesDashboard = () => {
              * Step 3: Save the code change and the bar chart should appear
              */
 
-            // []
+            [],
             await sdk.ok(
               sdk.run_query({
                 query_id: "53185", //'53185', // the id of the query in Looker for revenue over time

@@ -83,14 +83,26 @@ const routes = {
   ],
 };
 
+const EmbedSDKInit = (id) => {
+  LookerEmbedSDK.init(import.meta.env.VITE_LOOKERSDK_EMBED_HOST, {
+    // The location of the service which will privately create a signed URL
+    url: `/api/auth`,
+    headers: [
+      // include some factor which your auth service can use to uniquely identify a user, so that a user specific url can be returned. This could be a token or ID
+      { name: "usertoken", value: "user1" },
+      { name: "userId", value: id },
+    ],
+  });
+};
+
 function App() {
   const [active, setActive] = useState("Home");
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(true);
   const [dashboard, setDashboard] = useState();
-  const [locale, setLocale] = useState("en");
+  const [locale, setLocale] = useState();
   const [trafficSource, setTrafficSource] = useState("");
-  const [pdf, setPdf] = useState(true);
+  const [pdf, setPdf] = useState();
   const [permissions, setPermissions] = useState([]);
   const [id, setID] = useState(import.meta.env.VITE_SALES_DASHBOARD_ID);
   const { authed, user } = useAuth();
@@ -100,18 +112,6 @@ function App() {
       ? "dark"
       : "light",
   );
-
-  const EmbedSDKInit = (id) => {
-    LookerEmbedSDK.init(import.meta.env.VITE_LOOKERSDK_EMBED_HOST, {
-      // The location of the service which will privately create a signed URL
-      url: `/api/auth`,
-      headers: [
-        // include some factor which your auth service can use to uniquely identify a user, so that a user specific url can be returned. This could be a token or ID
-        { name: "usertoken", value: "user1" },
-        { name: "user_id", value: id },
-      ],
-    });
-  };
 
   useEffect(() => {
     if (authed && user) {
@@ -124,23 +124,25 @@ function App() {
   }, [authed, user]);
 
   useEffect(() => {
-    fetch("/api/permissions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        permissions: {
-          pdf: pdf ? "download_with_limit" : false,
+    if (locale && pdf) {
+      fetch("/api/permissions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        userAttributes: {
-          locale: locale,
-        },
-      }),
-    }).then((res) => {
-      setID(initializeDashboard(active));
-      setPermissions([locale, pdf]);
-    });
+        body: JSON.stringify({
+          permissions: {
+            pdf: pdf ? "download_with_limit" : false,
+          },
+          userAttributes: {
+            locale: locale,
+          },
+        }),
+      }).then((res) => {
+        setID(initializeDashboard(active));
+        setPermissions([locale, pdf]);
+      });
+    }
   }, [locale, pdf]);
 
   useEffect(() => {

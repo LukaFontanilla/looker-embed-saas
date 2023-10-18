@@ -60,7 +60,7 @@ class PblSession extends AuthSession {
     if (token && token.access_token) {
       console.log("Props: ", props);
       props.mode = "cors";
-      // delete props.credentials;
+      delete props.credentials;
       props.headers = {
         ...props.headers,
         Authorization: `Bearer ${this.activeToken.access_token}`,
@@ -79,14 +79,14 @@ class PblSessionEmbed extends PblSession {
       // logged in user to the backend instead.
       // The backend would then handle assigning appropriate permissions to the user.
       "/api/embed-user/token",
-      {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      },
+      // {
+      //   method: "POST",
+      //   credentials: "include",
+      //   headers: {
+      //     Accept: "application/json",
+      //     "Content-Type": "application/json",
+      //   },
+      // },
     );
   }
 }
