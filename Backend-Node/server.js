@@ -12,25 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var cors = require('cors')
+var express = require("express");
+var path = require("path");
+var cookieParser = require("cookie-parser");
+var logger = require("morgan");
+var cors = require("cors");
 
-var indexRouter = require('./routes/index');
-var apiRouter = require('./routes/api');
+var indexRouter = require("./routes/index");
+var apiRouter = require("./routes/api");
 
 var app = express();
 
-app.use(cors())
-app.use(logger('dev'));
+app.use(cors());
+// app.use(
+//   cors({
+//     credentials: true,
+//     origin:
+//       // "http://localhost:5173",
+//       "https://w252qq-5173.csb.app",
+//     // process.env.NODE_ENV === "production"
+//     //   ? process.env.CLIENT_URL
+//     //   : "http://localhost:3000",
+//   }),
+// );
+app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 
-app.use('/', indexRouter);
-app.use('/api', apiRouter);
+app.use("/", indexRouter);
+app.use("/api", apiRouter);
 
 module.exports = app;

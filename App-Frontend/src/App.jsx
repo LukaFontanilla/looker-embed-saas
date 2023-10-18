@@ -1,13 +1,15 @@
 import { useState, useEffect, useContext } from "react";
 import "./App.css";
-import LeftNav from "./components/LeftNav";
+import LeftNav from "./components/Layout/LeftNav";
 import { LookerEmbedSDK } from "@looker/embed-sdk";
 import { NavContext } from "./contexts/NavContext";
 import { DashboardContext } from "./contexts/DashboardContext";
 import { PermissionsContext } from "./contexts/PermissionsContext";
-import TopBanner from "./components/TopBanner";
-import Footer from "./components/Footer";
-import Home from "./components/Home";
+import TopBanner from "./components/Layout/TopBanner";
+import Footer from "./components/Layout/Footer";
+import Home from "./components/Pages/Home/Home";
+import Login from "./components/Login";
+import useAuth from "./hooks/useAuth";
 import { sdk } from "./helpers/CorsSessionHelper";
 import { initDB } from "./helpers/db";
 import { initializeDashboard } from "./helpers/staticAssets";
@@ -20,11 +22,18 @@ import {
   useLocation,
 } from "react-router-dom";
 import { DarkModeContext } from "./contexts/DarkModeContext";
-import SSOEmbedComponent from "./components/SSOEmbedComponent";
-import CustomSalesDashboard from "./components/CustomSalesDashboard";
-import EmbedDashboardFinance from "./components/EmbedDashboardFinance";
-import EmbedDashboardMarketing from "./components/EmbedDashboardMarketing";
-import EmbedExplore from "./components/EmbedExplore";
+import SSOEmbedComponent from "./components/Pages/SSOEmbedComponent";
+import CustomSalesDashboard from "./components/Pages/Sales/CustomSalesDashboard";
+import EmbedDashboardFinance from "./components/Pages/EmbedDashboardFinance";
+import EmbedDashboardMarketing from "./components/Pages/EmbedDashboardMarketing";
+import EmbedExplore from "./components/Pages/EmbedExplore";
+import AnimationLayout from "./components/Layout/PageTransition";
+
+const RequireAuth = ({ children }) => {
+  const { authed, user } = useAuth();
+
+  return authed === true ? children : <Navigate to="/login" replace />;
+};
 
 const routes = {
   title: "Embed Examples",
@@ -75,7 +84,6 @@ const routes = {
 };
 
 function App() {
-  const [count, setCount] = useState(0);
   const [active, setActive] = useState("Home");
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -85,6 +93,7 @@ function App() {
   const [pdf, setPdf] = useState(true);
   const [permissions, setPermissions] = useState([]);
   const [id, setID] = useState(import.meta.env.VITE_SALES_DASHBOARD_ID);
+  const { authed, user } = useAuth();
   const [dark, setDark] = useState(
     window.matchMedia &&
       window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -92,22 +101,27 @@ function App() {
       : "light",
   );
 
-  const EmbedSDKInit = () => {
+  const EmbedSDKInit = (id) => {
     LookerEmbedSDK.init(import.meta.env.VITE_LOOKERSDK_EMBED_HOST, {
       // The location of the service which will privately create a signed URL
-      url: "/api/auth",
+      url: `/api/auth`,
       headers: [
         // include some factor which your auth service can use to uniquely identify a user, so that a user specific url can be returned. This could be a token or ID
         { name: "usertoken", value: "user1" },
+        { name: "user_id", value: id },
       ],
     });
   };
-  EmbedSDKInit();
 
   useEffect(() => {
-    // initialize indexdb
-    initDB();
-  }, []);
+    if (authed && user) {
+      // initialize indexdb
+      console.log(authed, user);
+      initDB();
+
+      EmbedSDKInit(user.email);
+    }
+  }, [authed, user]);
 
   useEffect(() => {
     fetch("/api/permissions", {
@@ -162,34 +176,32 @@ function App() {
                 permissions,
               }}
             >
-              <Router>
-                <div className={dark ? "dark" : "light"}>
-                  <div className="flex flex-col h-screen w-screen bg-white dark:bg-black">
-                    <TopBanner />
-                    <div className="flex flex-1 overflow-hidden">
-                      <LeftNav />
-                      <main
-                        className={`flex-1 overflow-y-scroll ${
-                          active !== "Home" && active !== "Sales"
-                            ? "p-0"
-                            : "p-4"
-                        } bg-zinc-50 dark:bg-black`}
-                        onClick={() => setShow(false)}
-                      >
-                        <div className="grid gap-1 h-full relative">
-                          <Routes>
+              <div className={dark ? "dark" : "light"}>
+                <div className="flex flex-col h-screen w-screen bg-white dark:bg-black">
+                  <TopBanner />
+                  <div className="flex flex-1 overflow-hidden">
+                    {authed ? <LeftNav /> : <></>}
+                    <main
+                      className={`flex-1 overflow-y-scroll ${
+                        active !== "Home" && active !== "Sales" ? "p-0" : "p-4"
+                      } bg-zinc-50 dark:bg-black h-[90vh]`}
+                      onClick={() => setShow(false)}
+                    >
+                      <div className="grid gap-1 h-full relative overflow-y-scroll">
+                        <Routes>
+                          <Route element={<AnimationLayout />}>
                             <Route
                               exact
                               path="/"
                               element={
-                                <>
+                                <RequireAuth>
                                   {
                                     [
                                       ...routes.looker_examples,
                                       ...routes.use_case_examples,
                                     ][0].component
                                   }
-                                </>
+                                </RequireAuth>
                               }
                             />
 
@@ -208,20 +220,23 @@ function App() {
                                 return (
                                   <Route
                                     path={e.url}
-                                    default
-                                    element={<>{e.component}</>}
+                                    // default
+                                    element={
+                                      <RequireAuth>{e.component}</RequireAuth>
+                                    }
                                     key={e.text}
                                   />
                                 );
                               })}
-                          </Routes>
-                        </div>
-                      </main>
-                    </div>
-                    <Footer />
+                            <Route path="/login" element={<Login />} />
+                          </Route>
+                        </Routes>
+                      </div>
+                    </main>
                   </div>
+                  {authed ? <Footer /> : <></>}
                 </div>
-              </Router>
+              </div>
             </PermissionsContext.Provider>
           </DashboardContext.Provider>
         </DarkModeContext.Provider>

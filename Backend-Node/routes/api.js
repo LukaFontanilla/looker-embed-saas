@@ -14,22 +14,42 @@
 
 var express = require("express");
 var config = require("../config");
-var cookieSession = require('cookie-session')
 var router = express.Router();
-var cookieParser = require('cookie-parser')
 const { LookerNodeSDK } = require("@looker/sdk-node");
 const sdk = LookerNodeSDK.init40();
 const fetch = require("node-fetch");
-var app = express()
-app.use(cookieParser())
+
+/**
+ * Setting up Admin API for Firebase
+ */
+
+// const { initializeApp } = require('firebase-admin/app');
+// //Define path to secret key generated for service account
+// const serviceAccount = require(PATH TO KEY);
+// //Initialize the app
+// const app = initializeApp({
+//   credential: admin.credential.cert(serviceAccount)
+// });
 
 /**
  * Global User Variable For Workshop Purposes
  * Step 1: Replace the value of lookerExternalUserID with {your_name}-Embed
-*/
+ */
 
-let lookerExternalUserID = 'Luka-Embed';
+let lookerExternalUserID = "Luka-Embed";
 
+/***********************************************
+ * Middleware For Checking User Session cookie *
+ ***********************************************/
+const requireSessionCookie = (request, response, next) => {
+  console.log(request.headers.cookie);
+  console.log(request.cookies);
+  // if (!request.cookie) {
+  //   response.status(404).send({ redirect: "/login" });
+  // } else {
+  next();
+  // }
+};
 
 /*****************************************
  * Authentication                        *
@@ -39,7 +59,9 @@ let lookerExternalUserID = 'Luka-Embed';
  * Create an API auth token based on the provided embed user credentials
  */
 router.get("/embed-user/token", async (req, res) => {
-  const userCred = await sdk.ok(sdk.user_for_credential("embed", lookerExternalUserID));
+  console.log("Cookie: ", req.cookie);
+  console.log(req.headers.cookie);
+  const userCred = await sdk.ok(sdk.user_for_credential("embed", "lukapuka"));
   const embed_user_token = await sdk.login_user(userCred.id.toString());
   const u = {
     user_token: embed_user_token.value,
@@ -54,47 +76,63 @@ router.get("/embed-user/token", async (req, res) => {
 
 router.post("/permissions", async (req, res) => {
   const { permissions, userAttributes } = req.body;
-  let user = config.authenticatedUser['user1'];
+  let user = config.authenticatedUser["user1"];
 
-  const userObject = { ...user, external_user_id: lookerExternalUserID }
-  console.log("Request: ", permissions, userObject)
+  const userObject = {
+    ...user,
+    external_user_id: req.cookie ? req.cookie.id : "",
+  };
 
   userObject["user_attributes"] = userAttributes;
-  userObject["permissions"] = !permissions.pdf ? [...userObject["permissions"]] : [...userObject["permissions"], permissions.pdf]
+  userObject["permissions"] = !permissions.pdf
+    ? [...userObject["permissions"]]
+    : [...userObject["permissions"], permissions.pdf];
 
-  const { url } = await sdk.ok(sdk.create_sso_embed_url({target_url: `https://${process.env.LOOKERSDK_EMBED_HOST}/embed/dashboards/1`,...userObject}))
-  await fetch(url)
+  const { url } = await sdk.ok(
+    sdk.create_sso_embed_url({
+      target_url: `https://${process.env.LOOKERSDK_EMBED_HOST}/embed/dashboards/1`,
+      ...userObject,
+    }),
+  );
+  await fetch(url);
   res.status(200).send({ message: "Updated Permissions" });
-
-})
+});
 
 router.get("/auth", async (req, res) => {
   let options = {
     maxAge: 3600000, // expires in an hour
     httpOnly: true, // The cookie only accessible by the web server
-    signed: false // Indicates if the cookie should be signed
-  }
+    signed: false, // Indicates if the cookie should be signed
+  };
 
   // Set cookie
-  res.cookie('embedSession', {'setTime': Date.now(),'validFor': 3600000}, options) // options is optional
-  console.log("auth endpoint hit")
+  res.cookie(
+    "embedSession",
+    { id: req.headers.user_id, setTime: Date.now(), validFor: 3600000 },
+    options,
+  ); // options is optional
+  console.log("auth endpoint hit");
   const src = req.query.src;
-  console.log(src)
-  const fullEmbedUrl = 'https://' + process.env.LOOKERSDK_EMBED_HOST + src;
-  const user = { ...config.authenticatedUser[req.headers.usertoken], external_user_id: lookerExternalUserID };
-  
+  const fullEmbedUrl = "https://" + process.env.LOOKERSDK_EMBED_HOST + src;
+  const user = {
+    ...config.authenticatedUser[req.headers.usertoken],
+    external_user_id: req.headers.user_id,
+  };
+
   try {
-    const { url } = await sdk.ok(sdk.create_sso_embed_url({target_url: fullEmbedUrl,...user}))
-    res.json({url});
+    const { url } = await sdk.ok(
+      sdk.create_sso_embed_url({ target_url: fullEmbedUrl, ...user }),
+    );
+    res.json({ url });
   } catch (e) {
-    console.log(e)
+    console.log(e);
   }
 });
 
 // Route for getting all the cookies
-router.get('/getcookie', function (req, res) {
-  console.log(req.cookies)
+router.get("/getcookie", function (req, res) {
+  console.log(req.cookies);
   res.json(req.cookies);
-})
+});
 
 module.exports = router;

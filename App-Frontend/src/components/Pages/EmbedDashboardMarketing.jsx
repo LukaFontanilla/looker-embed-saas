@@ -6,13 +6,13 @@ import styled, { keyframes } from "styled-components";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import Fab from "@mui/material/Fab";
-import { EmbedCheckAuth } from "../helpers/EmbedCheckAuth";
-import { handleDownload } from "../helpers/DownloadReport";
-import { DashboardContext } from "../contexts/DashboardContext";
-import { NavContext } from "../contexts/NavContext";
-import { PermissionsContext } from "../contexts/PermissionsContext";
-import { DarkModeContext } from "../contexts/DarkModeContext";
-import { SunspotLoaderComponent } from "./CustomLoader";
+import { EmbedCheckAuth } from "../../helpers/EmbedCheckAuth";
+import { handleDownload } from "../../helpers/DownloadReport";
+import { DashboardContext } from "../../contexts/DashboardContext";
+import { NavContext } from "../../contexts/NavContext";
+import { PermissionsContext } from "../../contexts/PermissionsContext";
+import { DarkModeContext } from "../../contexts/DarkModeContext";
+import { SunspotLoaderComponent } from "../CustomLoader";
 
 const EmbedDashboardMarketing = ({ id }) => {
   const { dashboard, setDashboard } = useContext(DashboardContext);
@@ -76,7 +76,7 @@ const EmbedDashboardMarketing = ({ id }) => {
         })
         .on("dashboard:run:complete", animateDashboardLoad)
         .on("dashboard:loaded", (e) => {
-          // console.log("dashboard:loaded", e);
+          console.log("dashboard:loaded", e);
         })
 
         // this line performs the call to the auth service to get the iframe's src='' url, places it in the iframe and the client performs the request to Looker
@@ -148,7 +148,7 @@ const Dashboard = styled.div`
 
 const DashboardContainer = styled.div`
   width: 100%;
-  height: 100%;
+  height: 98%;
   display: flex;
   opacity: 0.1;
   zindex: -1;

@@ -10,10 +10,10 @@ import {
   Label,
 } from "recharts";
 import React, { useContext, useEffect, useState } from "react";
-import { NavContext } from "../contexts/NavContext";
-import { PermissionsContext } from "../contexts/PermissionsContext";
-import { DarkModeContext } from "../contexts/DarkModeContext";
-import { addData, getStoreData, deleteData } from "../helpers/db";
+import { NavContext } from "../../../contexts/NavContext";
+import { PermissionsContext } from "../../../contexts/PermissionsContext";
+import { DarkModeContext } from "../../../contexts/DarkModeContext";
+import { addData, getStoreData, deleteData } from "../../../helpers/db";
 import { PieChart, Pie, Sector, Cell } from "recharts";
 import AccountTable from "./AccountTable";
 import QueryStatus from "./QueryStatus";
@@ -35,7 +35,7 @@ const kFormatter = (num) =>
     ? Math.sign(num) * (Math.abs(num) / 1000).toFixed(1) + "k"
     : Math.sign(num) * Math.abs(num);
 const getXValue = (data) => data[Object.keys(data)[0]];
-const getYValue = (data) => data[Object.keys(data)[1]]; //* Math.floor(Math.random() * 5) + 1000
+const getYValue = (data) => data[Object.keys(data)[1]];
 const yValueFormatter = (yValue) =>
   kFormatter(yValue).toLocaleString("en-US", {
     style: "currency",

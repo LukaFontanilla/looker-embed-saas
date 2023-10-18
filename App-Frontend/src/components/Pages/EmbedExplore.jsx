@@ -4,8 +4,8 @@
 import React, { useCallback, useContext, useEffect } from "react";
 import styled from "styled-components";
 import { LookerEmbedSDK } from "@looker/embed-sdk";
-import { DarkModeContext } from "../contexts/DarkModeContext";
-import { SunspotLoaderComponent } from "./CustomLoader";
+import { DarkModeContext } from "../../contexts/DarkModeContext";
+import { SunspotLoaderComponent } from "../CustomLoader";
 
 /**
  * First initialized the embed sdk using the endpoint in /backend/routes/api.js
@@ -103,7 +103,7 @@ const Explore = styled.div`
 
 const ExploreContainer = styled.div`
   width: 100%;
-  height: 100%;
+  height: 98%;
   display: flex;
   flex-direction: column;
   align-items: center;

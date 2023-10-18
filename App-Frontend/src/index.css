@@ -45,6 +45,58 @@ showDash {
   opacity: 1;
 }
 
+label {
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+}
+
+input {
+  position: absolute;
+  opacity: 0;
+}
+
+.toggle {
+  position: absolute;
+  display: block;
+  width: 24px;
+  height: 24px;
+  background: #2b2b2b;
+  border-radius: 0.8rem;
+  box-shadow:
+    inset 0 8px 60px rgba(0, 0, 0, 0.1),
+    inset 0 8px 8px rgba(0, 0, 0, 0.1),
+    inset 0 -4px 4px rgba(0, 0, 0, 0.1);
+  z-index: -1;
+  transition: 1s ease;
+}
+
+#dark-mode-toggle {
+  transition: 1s ease;
+}
+
+#sun {
+  position: absolute;
+  transition: 1s ease;
+  transform: scale(0);
+}
+
+#moon {
+  transition: 1s ease;
+}
+
+#dark-mode-toggle:checked ~ #sun {
+  fill: none;
+  stroke-width: 2;
+  transform: scale(1) rotate(360deg);
+}
+
+#dark-mode-toggle:checked ~ #moon {
+  /* fill: none;
+  stroke-width: 2; */
+  transform: rotate(360deg) scale(0);
+}
+
 button {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -68,6 +120,7 @@ button:focus-visible {
   :root {
     color: #213547;
     background-color: #ffffff;
+    transition: 1s;
   }
   a:hover {
     color: #747bff;

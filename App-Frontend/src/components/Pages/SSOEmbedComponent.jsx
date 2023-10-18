@@ -13,7 +13,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 const url = "";
 
 const SSOEmbedComponent = () => {
-  const [dashboardURL, setDashboardURL] = useState();
+  const [dashboardURL, setDashboardURL] = useState("");
   const [open, setOpen] = useState(false);
   const [show, setShow] = useState(false);
 
@@ -25,6 +25,11 @@ const SSOEmbedComponent = () => {
     setOpen(false);
     setShow(false);
     setDashboardURL("");
+  };
+
+  const handleEmbedClick = () => {
+    setOpen(false);
+    setShow(false);
   };
 
   return (
@@ -53,13 +58,13 @@ const SSOEmbedComponent = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setShow(true)}>Parse SSO Embed URL</Button>
-          <Button onClick={handleClose}>Embed</Button>
+          <Button onClick={handleEmbedClick}>Embed</Button>
           <Button onClick={handleClose}>Cancel</Button>
         </DialogActions>
       </Dialog>
       <DashboardContainer>
         <Dashboard>
-          {url === "" ? (
+          {dashboardURL === "" || open ? (
             <div className="flex w-full h-full flex-col justify-center align-middle items-center cursor">
               <span
                 style={{
@@ -75,7 +80,7 @@ const SSOEmbedComponent = () => {
               <h3 className="text-lg">Add Looker Dashboard ID to Embed</h3>
             </div>
           ) : (
-            <iframe title="Looker Dashboard" src={""} />
+            <iframe title="Looker Dashboard" src={dashboardURL} />
           )}
         </Dashboard>
       </DashboardContainer>
@@ -86,14 +91,28 @@ const SSOEmbedComponent = () => {
 const RichTextRender = ({ text }) => {
   if (decodeURIComponent(text).split("?").length > 2) {
     return (
-      <div className="h-2/3">
-        <span>URL: {decodeURIComponent(text).split("?")[0]}</span>
-        <span>
+      <div
+        className="h-[60vh] flex flex-col space-between mt-4 bg-white justify-center items-center dark:bg-black shadow-lg p-2 rounded-xl h-40 hover:brightness-125 hover:drop-shadow-lg mb-2"
+        id="svgBackground1"
+      >
+        <div className="mt-2">
+          URL: {decodeURIComponent(text).split("?")[0]}
+        </div>
+        <div>
           Embed URL Parameters: {decodeURIComponent(text).split("?")[1]}
-        </span>
-        <span>
-          SSO Embed URL Parameters: {decodeURIComponent(text).split("?")[2]}
-        </span>
+        </div>
+        <div className="text-lg bold mt-4">SSO Embed URL Parameters:</div>
+        {decodeURIComponent(text)
+          .split("?")[2]
+          .split("&")
+          .map((param) => {
+            const data = param.split("=");
+            return (
+              <div className="mt-2">
+                {data[0]} : {data[1]}
+              </div>
+            );
+          })}
       </div>
     );
   }

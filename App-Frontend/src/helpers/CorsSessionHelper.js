@@ -18,11 +18,14 @@
   This file authenticates the SDK by getting an authorization token.
 */
 import { Looker40SDK } from "@looker/sdk";
-import { AuthToken, AuthSession, BrowserTransport, DefaultSettings } from "@looker/sdk-rtl";
-
+import {
+  AuthToken,
+  AuthSession,
+  BrowserTransport,
+  DefaultSettings,
+} from "@looker/sdk-rtl";
 
 class PblSession extends AuthSession {
-
   // This is a placeholder for the fetchToken function. It is modified to make it useful later.
   fetchToken() {
     return fetch("");
@@ -32,7 +35,7 @@ class PblSession extends AuthSession {
   constructor(settings, transport) {
     super(settings, transport || new BrowserTransport(settings));
   }
-  
+
   // This function checks to see if the user is already authenticated
   isAuthenticated() {
     const token = this.activeToken;
@@ -44,7 +47,7 @@ class PblSession extends AuthSession {
   async getToken() {
     if (!this.isAuthenticated()) {
       const token = await this.fetchToken();
-      const res = await token.json()
+      const res = await token.json();
       this.activeToken.setToken(res.user_token);
     }
     return this.activeToken;
@@ -55,11 +58,12 @@ class PblSession extends AuthSession {
   async authenticate(props) {
     const token = await this.getToken();
     if (token && token.access_token) {
+      console.log("Props: ", props);
       props.mode = "cors";
-      delete props.credentials;
+      // delete props.credentials;
       props.headers = {
         ...props.headers,
-        Authorization: `Bearer ${this.activeToken.access_token}`
+        Authorization: `Bearer ${this.activeToken.access_token}`,
       };
     }
     return props;
@@ -71,10 +75,18 @@ class PblSessionEmbed extends PblSession {
   fetchToken() {
     return fetch(
       // The token user is here set to the static user variable on the backend.
-      // In real applications, you would pass the actual, 
+      // In real applications, you would pass the actual,
       // logged in user to the backend instead.
       // The backend would then handle assigning appropriate permissions to the user.
-      "/api/embed-user/token"
+      "/api/embed-user/token",
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      },
     );
   }
 }
@@ -82,7 +94,7 @@ class PblSessionEmbed extends PblSession {
 // This creates a new session with the 'real' address used above
 const session = new PblSessionEmbed({
   ...DefaultSettings,
-  base_url: import.meta.env.VITE_LOOKER_API_HOST
+  base_url: import.meta.env.VITE_LOOKER_API_HOST,
 });
 
 // This exports the SDK with the authenticated session

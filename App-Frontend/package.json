@@ -21,6 +21,8 @@
     "@mui/x-data-grid-generator": "^6.16.0",
     "@styled-icons/material-outlined": "^10.34.0",
     "dotenv-webpack": "^5.1.0",
+    "firebase": "^10.5.0",
+    "framer-motion": "^10.16.4",
     "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

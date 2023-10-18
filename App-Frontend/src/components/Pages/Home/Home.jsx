@@ -1,14 +1,19 @@
 import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { NavContext } from "../contexts/NavContext";
-import EmbedDashboard from "./EmbedDashboard";
-import { DashboardContext } from "../contexts/DashboardContext";
-import { PermissionsContext } from "../contexts/PermissionsContext";
-import { DarkModeContext } from "../contexts/DarkModeContext";
-import { initializeDashboard, homePageConfig } from "../helpers/staticAssets";
+import { NavContext } from "../../../contexts/NavContext";
+import EmbedDashboard from "../../EmbedDashboard";
+import { DashboardContext } from "../../../contexts/DashboardContext";
+import { PermissionsContext } from "../../../contexts/PermissionsContext";
+import { DarkModeContext } from "../../../contexts/DarkModeContext";
+import {
+  initializeDashboard,
+  homePageConfig,
+} from "../../../helpers/staticAssets";
 import HomepageLineChartContainer from "./HomepageLineChart";
+import useAuth from "../../../hooks/useAuth";
 
 const Home = () => {
+  const { user } = useAuth();
   const { active, setActive } = useContext(NavContext);
   const { dashboard, setDashboard, loading, setLoading, id, setID } =
     useContext(DashboardContext);
@@ -45,7 +50,7 @@ const Home = () => {
       <div className={`p-4 z-1`} style={{ height: "70vh" }} id="home">
         <section className="mb-14">
           <h2 className="text-4xl font-bold mb-4 text-black dark:text-white">
-            Welcome!
+            Welcome {user.displayName}!
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div className="bg-transparent dark:bg-zinc-800 shadow-lg rounded-xl w-120 hover:drop-shadow-lg">
@@ -75,7 +80,10 @@ const Home = () => {
             >
               {section["sub-sections"].map((subsection, index) => (
                 <div>
-                  <div onClick={() => handleClick(subsection.title)}>
+                  <div
+                    onClick={() => handleClick(subsection.title)}
+                    className="cursor-pointer"
+                  >
                     <div
                       className="bg-white flex justify-center items-center dark:bg-black shadow-lg p-2 rounded-xl h-40 hover:brightness-125 hover:drop-shadow-lg mb-2"
                       id={"svgBackground" + (index + 2).toString()}
