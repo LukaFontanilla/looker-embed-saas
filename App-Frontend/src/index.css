@@ -201,3 +201,7 @@ button:focus-visible {
   background-attachment: fixed;
   opacity: 0.6;
 }
+
+#lottie > svg > path > g > g {
+  fill: #d19;
+}

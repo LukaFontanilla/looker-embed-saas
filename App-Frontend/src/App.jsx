@@ -96,13 +96,13 @@ const EmbedSDKInit = (id) => {
 };
 
 function App() {
-  const [active, setActive] = useState("Home");
+  const [active, setActive] = useState();
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(true);
   const [dashboard, setDashboard] = useState();
   const [locale, setLocale] = useState();
   const [trafficSource, setTrafficSource] = useState("");
-  const [pdf, setPdf] = useState();
+  const [pdf, setPdf] = useState(true);
   const [permissions, setPermissions] = useState([]);
   const [id, setID] = useState(import.meta.env.VITE_SALES_DASHBOARD_ID);
   const { authed, user } = useAuth();
@@ -112,6 +112,8 @@ function App() {
       ? "dark"
       : "light",
   );
+  const { pathname } = useLocation();
+  console.log(pathname);
 
   useEffect(() => {
     if (authed && user) {
@@ -185,8 +187,13 @@ function App() {
                     {authed ? <LeftNav /> : <></>}
                     <main
                       className={`flex-1 overflow-y-scroll ${
-                        active !== "Home" && active !== "Sales" ? "p-0" : "p-4"
-                      } bg-zinc-50 dark:bg-black h-[90vh]`}
+                        (active !== "Home" && active !== "Sales") ||
+                        pathname === "/login"
+                          ? "p-0"
+                          : "p-4"
+                      } bg-zinc-50 dark:bg-black ${
+                        pathname === "/login" ? "h-full" : "h-[90vh]"
+                      }`}
                       onClick={() => setShow(false)}
                     >
                       <div className="grid gap-1 h-full relative overflow-y-scroll">
