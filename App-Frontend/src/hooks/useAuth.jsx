@@ -13,11 +13,20 @@ function useAuth() {
       return new Promise((res) => {
         // wait for promise to resolve (ie. user sign in with popup)
         // then set auth to true and redirect to private route
-        loginWithGoogle().then((user) => {
-          console.log("User Info from Firebase: ", user);
-          setUser(user);
-          setAuthed(true);
-          res();
+        loginWithGoogle().then(async (user) => {
+          fetch("/api/check-user", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              user: user,
+            }),
+          }).then(() => {
+            setUser(user);
+            setAuthed(true);
+            res();
+          });
         });
       });
     },

@@ -18,18 +18,26 @@ var router = express.Router();
 const { LookerNodeSDK } = require("@looker/sdk-node");
 const sdk = LookerNodeSDK.init40();
 const fetch = require("node-fetch");
+const { initializeApp, cert } = require("firebase-admin/app");
+const {
+  getFirestore,
+  Timestamp,
+  FieldValue,
+  Filter,
+} = require("firebase-admin/firestore");
 
 /**
  * Setting up Admin API for Firebase
  */
 
-// const { initializeApp } = require('firebase-admin/app');
-// //Define path to secret key generated for service account
-// const serviceAccount = require(PATH TO KEY);
-// //Initialize the app
-// const app = initializeApp({
-//   credential: admin.credential.cert(serviceAccount)
-// });
+//Define path to secret key generated for service account
+const serviceAccount = require("../firebase-admin.json");
+//Initialize the app
+initializeApp({
+  credential: cert(serviceAccount),
+});
+
+const db = getFirestore();
 
 /***********************************************
  * Middleware For Checking User Session cookie *
@@ -42,8 +50,51 @@ const requireSessionCookie = (request, response, next) => {
   }
 };
 
+/***********************************
+ * Application User Authentication *
+ **********************************/
+
+router.post("/check-user", async (req, res) => {
+  if (req.body.user) {
+    const { uid, email, displayName } = req.body.user;
+    const userTenantPermissions = {
+      id: uid,
+      appUser: {
+        ...{ uid, email, displayName },
+      },
+      lookerUser: {
+        ...config.authenticatedUser["advancedUser"],
+        external_user_id: email,
+      },
+    };
+
+    // add user to firestore db
+    const userRef = db.collection("users").doc(uid);
+    const userRecord = await userRef.get();
+    if (userRecord.exists) {
+      await userRef.update({
+        visits: FieldValue.increment(1),
+      });
+      res.status(200).send({ status: "success", user: userTenantPermissions });
+    } else {
+      Promise.all([
+        await userRef.set(userTenantPermissions),
+        await userRef.update({
+          visits: 1,
+        }),
+      ]);
+      res.status(200).send({ status: "success", user: userTenantPermissions });
+    }
+
+    // const sessionRef = db.collection("sessions").doc(uid +  new Timestamp().toString())
+
+    //
+  }
+  // res.status(400).send({ status: "bad request" });
+});
+
 /*****************************************
- * Authentication                        *
+ * Looker Authentication                 *
  *****************************************/
 
 router.get("/auth", async (req, res) => {
@@ -55,9 +106,13 @@ router.get("/auth", async (req, res) => {
 
   const src = req.query.src;
   const fullEmbedUrl = "https://" + process.env.LOOKERSDK_EMBED_HOST + src;
+  // check db for user & their config
+  const userRef = db
+    .collection("users")
+    .doc(JSON.parse(req.headers.userid).uid);
+  const userData = await userRef.get();
   const user = {
-    ...config.authenticatedUser[req.headers.usertoken],
-    external_user_id: req.headers.userid,
+    ...userData.data().lookerUser,
   };
 
   try {
@@ -71,7 +126,7 @@ router.get("/auth", async (req, res) => {
       options,
     );
 
-    res.json({ url });
+    res.status(200).json({ url });
   } catch (e) {
     console.log(e);
   }
@@ -87,14 +142,18 @@ router.get("/getcookie", function (req, res) {
  */
 router.get("/embed-user/token", requireSessionCookie, async (req, res) => {
   const userCred = await sdk.ok(
-    sdk.user_for_credential("embed", req.cookies.embedSession.userID),
+    sdk.user_for_credential(
+      "embed",
+      JSON.parse(req.cookies.embedSession.userID).email,
+    ),
   );
+
   const embed_user_token = await sdk.login_user(userCred.id.toString());
   const u = {
     user_token: embed_user_token.value,
     token_last_refreshed: Date.now(),
   };
-  res.json({ ...u });
+  res.status(200).json({ ...u });
 });
 
 /**
@@ -103,22 +162,20 @@ router.get("/embed-user/token", requireSessionCookie, async (req, res) => {
 
 router.post("/permissions", requireSessionCookie, async (req, res) => {
   const { permissions, userAttributes } = req.body;
-  let user = config.authenticatedUser["user1"];
-
-  const userObject = {
-    ...user,
-    external_user_id: req.cookies.embedSession.userID,
-  };
-
-  userObject["user_attributes"] = userAttributes;
-  userObject["permissions"] = !permissions.pdf
-    ? [...userObject["permissions"]]
-    : [...userObject["permissions"], permissions.pdf];
+  const userRef = db
+    .collection("users")
+    .doc(JSON.parse(req.cookies.embedSession.userID).uid);
+  // const userRecord = await userRef.get();
+  await userRef.update({
+    "lookerUser.user_attributes": userAttributes,
+  });
+  const userData = await userRef.get();
+  console.log("User data: ", userData.data());
 
   const { url } = await sdk.ok(
     sdk.create_sso_embed_url({
       target_url: `https://${process.env.LOOKERSDK_EMBED_HOST}/embed/dashboards/1`,
-      ...userObject,
+      ...userData.data().lookerUser,
     }),
   );
   await fetch(url);

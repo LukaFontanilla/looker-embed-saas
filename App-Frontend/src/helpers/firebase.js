@@ -23,19 +23,8 @@ const googleProvider = new GoogleAuthProvider();
 const loginWithGoogle = async () => {
   try {
     const res = await signInWithPopup(auth, googleProvider);
-    console.log(res);
-    const { displayName, photoURL, email } = res.user;
-    return { displayName, photoURL, email };
-    // const q = query(collection(db, "users"), where("uid", "==", user.uid));
-    // const docs = await getDocs(q);
-    // if (docs.docs.length === 0) {
-    //   await addDoc(collection(db, "users"), {
-    //     uid: user.uid,
-    //     name: user.displayName,
-    //     authProvider: "google",
-    //     email: user.email,
-    //   });
-    // }
+    const { displayName, photoURL, email, uid } = res.user;
+    return { displayName, photoURL, email, uid };
   } catch (err) {
     console.error(err);
     alert(err.message);

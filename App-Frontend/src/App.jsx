@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, lazy, Suspense } from "react";
 import "./App.css";
 import LeftNav from "./components/Layout/LeftNav";
 import { LookerEmbedSDK } from "@looker/embed-sdk";
@@ -7,8 +7,8 @@ import { DashboardContext } from "./contexts/DashboardContext";
 import { PermissionsContext } from "./contexts/PermissionsContext";
 import TopBanner from "./components/Layout/TopBanner";
 import Footer from "./components/Layout/Footer";
-import Home from "./components/Pages/Home/Home";
-import Login from "./components/Login";
+const Home = lazy(() => import("./components/Pages/Home/Home"));
+const Login = lazy(() => import("./components/Login"));
 import useAuth from "./hooks/useAuth";
 import { sdk } from "./helpers/CorsSessionHelper";
 import { initDB } from "./helpers/db";
@@ -22,11 +22,19 @@ import {
   useLocation,
 } from "react-router-dom";
 import { DarkModeContext } from "./contexts/DarkModeContext";
-import SSOEmbedComponent from "./components/Pages/SSOEmbedComponent";
-import CustomSalesDashboard from "./components/Pages/Sales/CustomSalesDashboard";
-import EmbedDashboardFinance from "./components/Pages/EmbedDashboardFinance";
-import EmbedDashboardMarketing from "./components/Pages/EmbedDashboardMarketing";
-import EmbedExplore from "./components/Pages/EmbedExplore";
+const SSOEmbedComponent = lazy(() =>
+  import("./components/Pages/SSOEmbedComponent"),
+);
+const CustomSalesDashboard = lazy(() =>
+  import("./components/Pages/Sales/CustomSalesDashboard"),
+);
+const EmbedDashboardFinance = lazy(() =>
+  import("./components/Pages/EmbedDashboardFinance"),
+);
+const EmbedDashboardMarketing = lazy(() =>
+  import("./components/Pages/EmbedDashboardMarketing"),
+);
+const EmbedExplore = lazy(() => import("./components/Pages/EmbedExplore"));
 import AnimationLayout from "./components/Layout/PageTransition";
 
 const RequireAuth = ({ children }) => {
@@ -89,7 +97,7 @@ const EmbedSDKInit = (id) => {
     url: `/api/auth`,
     headers: [
       // include some factor which your auth service can use to uniquely identify a user, so that a user specific url can be returned. This could be a token or ID
-      { name: "usertoken", value: "user1" },
+      { name: "usertoken", value: "advancedUser" },
       { name: "userId", value: id },
     ],
   });
@@ -121,7 +129,7 @@ function App() {
       console.log(authed, user);
       initDB();
 
-      EmbedSDKInit(user.email);
+      EmbedSDKInit(JSON.stringify(user));
     }
   }, [authed, user]);
 
@@ -204,12 +212,14 @@ function App() {
                               path="/"
                               element={
                                 <RequireAuth>
-                                  {
-                                    [
-                                      ...routes.looker_examples,
-                                      ...routes.use_case_examples,
-                                    ][0].component
-                                  }
+                                  <Suspense fallback={<></>}>
+                                    {
+                                      [
+                                        ...routes.looker_examples,
+                                        ...routes.use_case_examples,
+                                      ][0].component
+                                    }
+                                  </Suspense>
                                 </RequireAuth>
                               }
                             />
@@ -231,7 +241,11 @@ function App() {
                                     path={e.url}
                                     // default
                                     element={
-                                      <RequireAuth>{e.component}</RequireAuth>
+                                      <RequireAuth>
+                                        <Suspense fallback={<></>}>
+                                          {e.component}
+                                        </Suspense>
+                                      </RequireAuth>
                                     }
                                     key={e.text}
                                   />

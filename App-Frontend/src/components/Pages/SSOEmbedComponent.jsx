@@ -46,6 +46,8 @@ const SSOEmbedComponent = () => {
             id="name"
             label="Embed URL"
             onChange={(e) => setDashboardURL(e.target.value)}
+            value={dashboardURL}
+            className="opacity-100"
             // type="email"
             fullWidth
             variant="standard"
@@ -57,9 +59,9 @@ const SSOEmbedComponent = () => {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setShow(true)}>Parse SSO Embed URL</Button>
-          <Button onClick={handleEmbedClick}>Embed</Button>
-          <Button onClick={handleClose}>Cancel</Button>
+          <button onClick={() => setShow(true)}>Parse SSO Embed URL</button>
+          <button onClick={handleEmbedClick}>Embed</button>
+          <button onClick={handleClose}>Cancel</button>
         </DialogActions>
       </Dialog>
       <DashboardContainer>

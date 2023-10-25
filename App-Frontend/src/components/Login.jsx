@@ -4,6 +4,7 @@ import useAuth from "../hooks/useAuth";
 const LoginAnimation = lazy(() => import("./LoginAnimation"));
 const LoginAnimationLight = lazy(() => import("./LoginAnimationLight"));
 import { DarkModeContext } from "../contexts/DarkModeContext";
+import GoogleIcon from "@mui/icons-material/Google";
 
 const Login = () => {
   const { dark } = useContext(DarkModeContext);
@@ -18,15 +19,20 @@ const Login = () => {
 
   return (
     <div className="w-full h-full flex flex-row justify-start items-center">
-      <div className="z-10 w-full md:w-3/5 lg:w-2/5 xl:w-2/6 h-full flex flex-column justify-start items-center bg-zinc-50 dark:bg-black p-2 shadow-md">
+      <div className="z-10 w-full md:w-2/6 h-full flex flex-col justify-center items-center bg-zinc-50 dark:bg-black p-2 shadow-lg dark:shadow-[#d19]">
         <h1 className="m-6 z-1 dark:text-zinc-50 text-zinc-900">
           Access Your Data
         </h1>
         <button
           onClick={handleLogin}
-          className="z-1 shadow hover:drop-shadow-lg"
+          className={`z-1 shadow ${
+            dark ? "hover:drop-shadow-xl" : "hover:drop-shadow-lg"
+          } ${dark && "bg-transparent"}`}
         >
-          Login
+          <span className="dark:text-zinc-50 text-zinc-900">
+            <GoogleIcon className="pr-2" />
+            Login
+          </span>
         </button>
       </div>
       <div

@@ -14,9 +14,9 @@
 
 /* config.js acts as single passthrough from root, so that backend package is self-contained */
 
-var config = require('./monorepo')
+var config = require("./monorepo");
 
-require('dotenv').config()
+require("dotenv").config();
 
 /*
 The following is two hard coded users with different permissions, which is intended to simulate how you would use identifying information
@@ -25,26 +25,22 @@ from the headers sent in EmbedSDK.init() to lookup a specific user from your dat
 In a production application, this config would likely be stored/represented in a user database. The Looker SSO Embed process doesn't automatically hook
 into your existing auth system (ie. IDP) so you will need to map app users to Looker Roles and Permissions. 
 */
-config.authenticatedUser = 
-{ 
-  user1: {
-    //The external user ID should be a unique value from your system
-    // "target_url": "https://dec1c6a1-9302-4033-8881-4a1ee4fd7c8e.looker.app/embed/dashboards/thelook::business_pulse",
-    // "external_user_id": "user1",
-    "session_length": 3600,
-    "force_logout_login": true,
+config.authenticatedUser = {
+  advancedUser: {
+    session_length: 3600,
+    force_logout_login: true,
     // The external_group_id is an arbitrary id, usually from an IdP
     // A folder is created for each external_group_id, for embed users to share content
-    "external_group_id": "group1",
-    "group_ids": [],
+    // "external_group_id": "group1",
+    group_ids: [],
     // For available permissions see: https://docs.looker.com/reference/embedding/sso-embed#permissions
-    // If the code here is 
-    "permissions": [
+    // If the code here is
+    permissions: [
       // access_data is necessary for every embed user.
       "access_data",
       // see_looks lets user view existing looks
       "see_looks",
-      // see_user_dashboards lets users view existing dashboards 
+      // see_user_dashboards lets users view existing dashboards
       "see_user_dashboards",
       // explore lets users use the explore experience
       "explore",
@@ -60,31 +56,41 @@ config.authenticatedUser =
       "see_drill_overlay",
       // Allows users to open the schedule modal, and send email to non-embed Looker users
       "schedule_look_emails",
-      // Allows embed users to schedule emails to themselves or other embed Looker users 
-      "schedule_external_look_emails"
+      // Allows embed users to schedule emails to themselves or other embed Looker users
+      "schedule_external_look_emails",
     ],
     // Models are mandatory; an emebd user can only see content and data using these models
-    "models": ["thelook","thelook_adwords","sfdc_demo","dashboard-match","ga4","gaming"],
-    "user_attributes": { "locale": "en" }
+    models: [
+      "thelook",
+      "thelook_adwords",
+      "sfdc_demo",
+      "dashboard-match",
+      "ga4",
+      "gaming",
+    ],
+    user_attributes: { locale: "en" },
   },
-  user2: {
-    // "target_url": "https://dec1c6a1-9302-4033-8881-4a1ee4fd7c8e.looker.app/embed/dashboards/thelook::business_pulse",
-    // "external_user_id": "user2",
-    "session_length": 3600,
-    "force_logout_login": true,
-    "external_group_id": "group2",
-    "group_ids": [],
-    //user2 has reduced permissions
-    "permissions": [
+  basicUser: {
+    session_length: 3600,
+    force_logout_login: true,
+    external_group_id: "group2",
+    group_ids: [],
+    permissions: [
       "access_data",
       "see_looks",
       "see_user_dashboards",
-      "see_lookml_dashboards"
+      "see_lookml_dashboards",
     ],
-    "models": ["thelook","thelook_adwords","sfdc_demo","dashboard-match","ga4","gaming"],
-    //user2 will be localized into a different language
-    "user_attributes": { "locale": "en" }
-  }
-}
+    models: [
+      "thelook",
+      "thelook_adwords",
+      "sfdc_demo",
+      "dashboard-match",
+      "ga4",
+      "gaming",
+    ],
+    user_attributes: { locale: "en" },
+  },
+};
 
-module.exports = config
+module.exports = config;
