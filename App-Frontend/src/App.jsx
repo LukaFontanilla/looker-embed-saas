@@ -5,6 +5,7 @@ import { LookerEmbedSDK } from "@looker/embed-sdk";
 import { NavContext } from "./contexts/NavContext";
 import { DashboardContext } from "./contexts/DashboardContext";
 import { PermissionsContext } from "./contexts/PermissionsContext";
+import { ReportConfigContext } from "./contexts/ReportConfig";
 import TopBanner from "./components/Layout/TopBanner";
 import Footer from "./components/Layout/Footer";
 const Home = lazy(() => import("./components/Pages/Home/Home"));
@@ -112,6 +113,7 @@ function App() {
   const [trafficSource, setTrafficSource] = useState("");
   const [pdf, setPdf] = useState(true);
   const [permissions, setPermissions] = useState([]);
+  const [queryID, setQueryID] = useState("");
   const [id, setID] = useState(import.meta.env.VITE_SALES_DASHBOARD_ID);
   const { authed, user } = useAuth();
   const [dark, setDark] = useState(
@@ -121,7 +123,6 @@ function App() {
       : "light",
   );
   const { pathname } = useLocation();
-  console.log(pathname);
 
   useEffect(() => {
     if (authed && user) {
@@ -174,93 +175,95 @@ function App() {
           <DashboardContext.Provider
             value={{ dashboard, setDashboard, loading, setLoading, id, setID }}
           >
-            <PermissionsContext.Provider
-              value={{
-                sdk,
-                locale,
-                setLocale,
-                trafficSource,
-                setTrafficSource,
-                pdf,
-                setPdf,
-                show,
-                setShow,
-                permissions,
-              }}
-            >
-              <div className={dark ? "dark" : "light"}>
-                <div className="flex flex-col h-screen w-screen bg-white dark:bg-black">
-                  <TopBanner />
-                  <div className="flex flex-1 overflow-hidden">
-                    {authed ? <LeftNav /> : <></>}
-                    <main
-                      className={`flex-1 overflow-y-scroll ${
-                        (active !== "Home" && active !== "Sales") ||
-                        pathname === "/login"
-                          ? "p-0"
-                          : "p-4"
-                      } bg-zinc-50 dark:bg-black ${
-                        pathname === "/login" ? "h-full" : "h-[90vh]"
-                      }`}
-                      onClick={() => setShow(false)}
-                    >
-                      <div className="grid gap-1 h-full relative overflow-y-scroll">
-                        <Routes>
-                          <Route element={<AnimationLayout />}>
-                            <Route
-                              exact
-                              path="/"
-                              element={
-                                <RequireAuth>
-                                  <Suspense fallback={<></>}>
-                                    {
-                                      [
-                                        ...routes.looker_examples,
-                                        ...routes.use_case_examples,
-                                      ][0].component
-                                    }
-                                  </Suspense>
-                                </RequireAuth>
-                              }
-                            />
+            <ReportConfigContext.Provider value={{ queryID, setQueryID }}>
+              <PermissionsContext.Provider
+                value={{
+                  sdk,
+                  locale,
+                  setLocale,
+                  trafficSource,
+                  setTrafficSource,
+                  pdf,
+                  setPdf,
+                  show,
+                  setShow,
+                  permissions,
+                }}
+              >
+                <div className={dark ? "dark" : "light"}>
+                  <div className="flex flex-col h-screen w-screen bg-white dark:bg-black">
+                    <TopBanner />
+                    <div className="flex flex-1 overflow-hidden">
+                      {authed ? <LeftNav /> : <></>}
+                      <main
+                        className={`flex-1 overflow-y-scroll ${
+                          (active !== "Home" && active !== "Sales") ||
+                          pathname === "/login"
+                            ? "p-0"
+                            : "p-4"
+                        } bg-zinc-50 dark:bg-black ${
+                          pathname === "/login" ? "h-full" : "h-[90vh]"
+                        }`}
+                        onClick={() => setShow(false)}
+                      >
+                        <div className="grid gap-1 h-full relative overflow-y-scroll">
+                          <Routes>
+                            <Route element={<AnimationLayout />}>
+                              <Route
+                                exact
+                                path="/"
+                                element={
+                                  <RequireAuth>
+                                    <Suspense fallback={<></>}>
+                                      {
+                                        [
+                                          ...routes.looker_examples,
+                                          ...routes.use_case_examples,
+                                        ][0].component
+                                      }
+                                    </Suspense>
+                                  </RequireAuth>
+                                }
+                              />
 
-                            {[
-                              ...routes.looker_examples,
-                              ...routes.use_case_examples,
-                            ]
-                              .slice(
-                                1,
-                                [
-                                  ...routes.looker_examples,
-                                  ...routes.use_case_examples,
-                                ].length,
-                              )
-                              .map((e) => {
-                                return (
-                                  <Route
-                                    path={e.url}
-                                    // default
-                                    element={
-                                      <RequireAuth>
-                                        <Suspense fallback={<></>}>
-                                          {e.component}
-                                        </Suspense>
-                                      </RequireAuth>
-                                    }
-                                    key={e.text}
-                                  />
-                                );
-                              })}
-                            <Route path="/login" element={<Login />} />
-                          </Route>
-                        </Routes>
-                      </div>
-                    </main>
+                              {[
+                                ...routes.looker_examples,
+                                ...routes.use_case_examples,
+                              ]
+                                .slice(
+                                  1,
+                                  [
+                                    ...routes.looker_examples,
+                                    ...routes.use_case_examples,
+                                  ].length,
+                                )
+                                .map((e) => {
+                                  return (
+                                    <Route
+                                      path={e.url}
+                                      // default
+                                      element={
+                                        <RequireAuth>
+                                          <Suspense fallback={<></>}>
+                                            {e.component}
+                                          </Suspense>
+                                        </RequireAuth>
+                                      }
+                                      key={e.text}
+                                    />
+                                  );
+                                })}
+                              <Route path="/login" element={<Login />} />
+                            </Route>
+                          </Routes>
+                        </div>
+                      </main>
+                    </div>
+                    {authed ? <Footer /> : <></>}
                   </div>
-                  {authed ? <Footer /> : <></>}
                 </div>
-              </div>
-            </PermissionsContext.Provider>
+              </PermissionsContext.Provider>
+            </ReportConfigContext.Provider>
           </DashboardContext.Provider>
         </DarkModeContext.Provider>
       </NavContext.Provider>

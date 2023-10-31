@@ -4,8 +4,12 @@ import Chip from "@mui/material/Chip";
 import Switch from "@mui/material/Switch";
 import React, { useState, useContext } from "react";
 import { PermissionsContext } from "../../contexts/PermissionsContext";
+import { NavContext } from "../../contexts/NavContext";
+import { ReportConfigContext } from "../../contexts/ReportConfig";
 // Desc: Footer component for the app
 const Footer = () => {
+  const { queryID, setQueryID } = useContext(ReportConfigContext);
+  const { active } = useContext(NavContext);
   const {
     locale,
     setLocale,
@@ -64,32 +68,55 @@ const Footer = () => {
             <h3 className="text-xl font-bold mb-2 mt-4 dark:text-white text-black">
               Filters
             </h3>
-            <div
-              className="bg-white dark:bg-black shadow-lg mb-4 p-2 rounded-xl h-40 w-full hover:brightness-125 hover:drop-shadow-lg"
-              id="svgBackground2"
-            >
-              <h3 className="text-xl font-bold mb-2 mt-4 text-white">
-                Country
-              </h3>
-              <Chip
-                label="Organic"
-                variant={trafficSource === "Organic" ? "filled" : "outlined"}
-                class="text-white border rounded-xl w-1/3 m-1"
-                onClick={(e) => setTrafficSource(e.target.textContent)}
-              />
-              <Chip
-                label="Search"
-                variant={trafficSource === "Search" ? "filled" : "outlined"}
-                class="text-white border rounded-xl w-1/4 m-1"
-                onClick={(e) => setTrafficSource(e.target.textContent)}
-              />
-              <Chip
-                label="Email"
-                variant={trafficSource === "Email" ? "filled" : "outlined"}
-                class="text-white border rounded-xl w-1/4 m-1"
-                onClick={(e) => setTrafficSource(e.target.textContent)}
-              />
-            </div>
+            {active === "Sales" ? (
+              <div
+                className="bg-white dark:bg-black shadow-lg mb-4 p-2 rounded-xl h-40 w-full hover:brightness-125 hover:drop-shadow-lg"
+                id="svgBackground2"
+              >
+                <h3 className="text-xl font-bold mb-2 mt-4 text-white">
+                  Custom Embed Query ID
+                </h3>
+                <Chip
+                  label="53185"
+                  variant={trafficSource === "53185" ? "filled" : "outlined"}
+                  class="text-white border rounded-xl w-1/3 m-1"
+                  onClick={(e) => setQueryID(e.target.textContent)}
+                />
+                <Chip
+                  label=""
+                  variant={trafficSource === "" ? "filled" : "outlined"}
+                  class="text-white border rounded-xl w-1/3 m-1"
+                  onClick={(e) => setQueryID(e.target.textContent)}
+                />
+              </div>
+            ) : (
+              <div
+                className="bg-white dark:bg-black shadow-lg mb-4 p-2 rounded-xl h-40 w-full hover:brightness-125 hover:drop-shadow-lg"
+                id="svgBackground2"
+              >
+                <h3 className="text-xl font-bold mb-2 mt-4 text-white">
+                  Country
+                </h3>
+                <Chip
+                  label="Organic"
+                  variant={trafficSource === "Organic" ? "filled" : "outlined"}
+                  class="text-white border rounded-xl w-1/3 m-1"
+                  onClick={(e) => setTrafficSource(e.target.textContent)}
+                />
+                <Chip
+                  label="Search"
+                  variant={trafficSource === "Search" ? "filled" : "outlined"}
+                  class="text-white border rounded-xl w-1/4 m-1"
+                  onClick={(e) => setTrafficSource(e.target.textContent)}
+                />
+                <Chip
+                  label="Email"
+                  variant={trafficSource === "Email" ? "filled" : "outlined"}
+                  class="text-white border rounded-xl w-1/4 m-1"
+                  onClick={(e) => setTrafficSource(e.target.textContent)}
+                />
+              </div>
+            )}
           </div>
           <div className="flex flex-col justify-between align-star w-full mt-6">
             <h3 className="text-xl font-bold mb-2 mt-4 dark:text-white text-black">

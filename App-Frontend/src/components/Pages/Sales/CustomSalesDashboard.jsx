@@ -9,11 +9,10 @@ import {
   AreaChart,
   Label,
 } from "recharts";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { NavContext } from "../../../contexts/NavContext";
-import { PermissionsContext } from "../../../contexts/PermissionsContext";
 import { DarkModeContext } from "../../../contexts/DarkModeContext";
-import { addData, getStoreData, deleteData } from "../../../helpers/db";
+import useSalesInsightsFetch from "../../../hooks/useSalesInsightsFetch";
 import { PieChart, Pie, Sector, Cell } from "recharts";
 import AccountTable from "./AccountTable";
 import QueryStatus from "./QueryStatus";
@@ -322,69 +321,10 @@ const DashboardCardsConfig = [
 
 const CustomSalesDashboard = () => {
   const { active, setActive } = useContext(NavContext);
-  const { sdk } = useContext(PermissionsContext);
   const { dark } = useContext(DarkModeContext);
-  const [cardData, setCardData] = useState();
-  const [barChartData, setBarChartData] = useState();
-  const [status, setStatus] = useState("");
   const [viz, setViz] = useState("area");
   const [trafficSource, setTrafficSource] = useState("Search");
-
-  useEffect(() => {
-    if (active === "Sales") {
-      async function data() {
-        setStatus("checkDB");
-        const data = await getStoreData("homepage");
-        console.log(data);
-        if (data.length === 0 || data[1].length === 0) {
-          await deleteData("homepage");
-          setStatus("fetching");
-          const queryResponses = await Promise.all([
-            await sdk.ok(
-              sdk.run_query({
-                query_id: "53147", //'4240', // the id of the query in Looker revenue, subscriptions, sales, active now
-                result_format: "json",
-                apply_formatting: true,
-                cache: true,
-              }),
-            ),
-            /**
-             * This is the query for the bar chart, please follow the steps below
-             * Step 1: Remove the empty array below and uncomment the lines below it
-             * Step 2: Take the query id from Looker and fill it in the query_id field
-             * Step 3: Save the code change and the bar chart should appear
-             */
-
-            [],
-            await sdk.ok(
-              sdk.run_query({
-                query_id: "53185", //'53185', // the id of the query in Looker for revenue over time
-                result_format: "json",
-                cache: true,
-              }),
-            ),
-          ]);
-          setStatus("AddToDB");
-          await Promise.all([
-            await addData("homepage", queryResponses[0][0]),
-            await addData("homepage", queryResponses[1]),
-          ]);
-          setStatus("AddedToDB");
-          const fetchData = await getStoreData("homepage");
-          return fetchData;
-        }
-
-        setStatus("fetchedFromDB");
-        return data;
-      }
-      data().then((res) => {
-        setCardData(res[0]);
-        setBarChartData(res[1]);
-        setStatus("fetchedFromDB");
-        setTimeout(() => setStatus(""), 2000);
-      });
-    }
-  }, [active]);
+  const [cardData, barChartData, status] = useSalesInsightsFetch();
 
   return (
     <div
