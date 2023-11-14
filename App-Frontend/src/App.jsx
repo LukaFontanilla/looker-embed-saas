@@ -119,7 +119,7 @@ function App() {
   const [dashboard, setDashboard] = useState();
   const [locale, setLocale] = useState();
   const [trafficSource, setTrafficSource] = useState("");
-  const [pdf, setPdf] = useState(true);
+  const [userType, setUserType] = useState("basic");
   const [permissions, setPermissions] = useState([]);
   const [queryID, setQueryID] = useState("");
   const [id, setID] = useState(import.meta.env.VITE_SALES_DASHBOARD_ID);
@@ -146,10 +146,11 @@ function App() {
   }, [authed, user]);
 
   useEffect(() => {
-    // when locale and pdf permissions change
+    // when locale and userType permissions change
     // make call to server to update the app user's permissions in Looker
     // and re-call sso embed url
-    if (locale && pdf) {
+    console.log(userType);
+    if (locale) {
       fetch("/api/permissions", {
         method: "POST",
         headers: {
@@ -157,7 +158,7 @@ function App() {
         },
         body: JSON.stringify({
           permissions: {
-            pdf: pdf ? "download_with_limit" : false,
+            userType: userType,
           },
           userAttributes: {
             locale: locale,
@@ -165,10 +166,10 @@ function App() {
         }),
       }).then(() => {
         setID(initializeDashboard(active));
-        setPermissions([locale, pdf]);
+        setPermissions([locale, userType]);
       });
     }
-  }, [locale, pdf]);
+  }, [locale, userType]);
 
   useEffect(() => {
     // Effect for responding to changes in external filter values
@@ -213,8 +214,8 @@ function App() {
                   setLocale,
                   trafficSource,
                   setTrafficSource,
-                  pdf,
-                  setPdf,
+                  userType,
+                  setUserType,
                   show,
                   setShow,
                   permissions,

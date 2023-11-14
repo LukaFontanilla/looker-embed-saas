@@ -39,21 +39,6 @@ initializeApp({
 
 const db = getFirestore();
 
-const testt = async () => {
-  const userCred = await sdk.ok(
-    sdk.user_for_credential(
-      "embed",
-      'lukas.fontanilla@gmail.com',
-      ),
-      );
-  const embed_user_token = await sdk.login_user(userCred.id.toString());
-  const u = {
-        user_token: embed_user_token.value,
-        token_last_refreshed: Date.now(),
-  };
-  console.log(u)
-  }
-
 /***********************************************
  * Middleware For Checking User Session cookie *
  ***********************************************/
@@ -186,6 +171,20 @@ router.post("/permissions", requireSessionCookie, async (req, res) => {
   // const userRecord = await userRef.get();
   await userRef.update({
     "lookerUser.user_attributes": userAttributes,
+  });
+  await userRef.update({
+    "lookerUser.permissions":
+      permissions.userType === "basic"
+        ? FieldValue.arrayRemove(
+            "save_content",
+            "explore",
+            "embed_browse_spaces",
+          )
+        : FieldValue.arrayUnion(
+            "save_content",
+            "explore",
+            "embed_browse_spaces",
+          ),
   });
   const userData = await userRef.get();
   console.log("User data: ", userData.data());

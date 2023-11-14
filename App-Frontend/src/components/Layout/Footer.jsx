@@ -21,8 +21,8 @@ const Footer = () => {
     setLocale,
     trafficSource,
     setTrafficSource,
-    pdf,
-    setPdf,
+    userType,
+    setUserType,
     show,
     setShow,
   } = useContext(PermissionsContext);
@@ -33,8 +33,8 @@ const Footer = () => {
 
   const handleChange = (event, type) => {
     switch (type) {
-      case "pdf":
-        setPdf(event.target.checked);
+      case "userType":
+        setUserType(event.target.checked ? "premium" : "basic");
         break;
       case "queryID":
         setID(event.target.value);
@@ -231,18 +231,40 @@ const Footer = () => {
                   />
                 </div>
                 <div
-                  className="bg-white dark:bg-zinc-800 shadow-lg p-2 rounded-xl h-12 w-full hover:brightness-125 hover:drop-shadow-lg"
+                  className="bg-white dark:bg-zinc-800 shadow-lg p-2 rounded-xl h-full w-full hover:brightness-125 hover:drop-shadow-lg"
                   id="svgBackground2"
                   v
                 >
-                  <span className="text-2xl font-bold text-white">
-                    PDF Download:{" "}
-                  </span>
-                  <Switch
-                    checked={pdf}
-                    onChange={(e) => handleChange(e, "pdf")}
-                    defaultChecked
-                  />
+                  <div className="flex flex-row">
+                    <div className="flex flex-col">
+                      <span className="text-2xl font-bold text-white">
+                        User Type{" "}
+                      </span>
+                      <span
+                        className={`text-sm ${
+                          userType === "basic"
+                            ? "text-slate-100"
+                            : "text-slate-300"
+                        }`}
+                      >
+                        Basic User: View & Download Access
+                      </span>
+                      <span
+                        className={`text-sm ${
+                          userType === "basic"
+                            ? "text-slate-100"
+                            : "text-slate-300"
+                        }`}
+                      >
+                        Premium User: Explore and Content Creation Access
+                      </span>
+                    </div>
+                    <Switch
+                      checked={userType === "basic" ? false : true}
+                      onChange={(e) => handleChange(e, "userType")}
+                      // defaultChecked
+                    />
+                  </div>
                 </div>
               </div>
             </>

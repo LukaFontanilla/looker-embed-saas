@@ -42,11 +42,12 @@ config.authenticatedUser = {
       "see_looks",
       // see_user_dashboards lets users view existing dashboards
       "see_user_dashboards",
+      "download_with_limit",
       // explore lets users use the explore experience
-      "explore",
+      // "explore",
       // save_content lets users save content
       // use it with 'explore' to allow the creation of new dashboards
-      "save_content",
+      // "save_content",
       // embed_broswe_spaces lets users navigate between folders to save content
       "embed_browse_spaces",
       // see_lookml_dashbaords lets users view existing 'LookML' dashboards

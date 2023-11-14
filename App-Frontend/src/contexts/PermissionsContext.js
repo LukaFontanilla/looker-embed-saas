@@ -1,7 +1,7 @@
 /**
  * Global State for Looker User Permissions, including:
  * locale (what langauage is the Looker content localized to)
- * pdf (does the user have pdf export capabilities)
+ * userType (does the user have premium user capabilities)
  */
 
 import { useState, createContext } from "react";
