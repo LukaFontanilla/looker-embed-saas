@@ -8,6 +8,9 @@ import { DashboardContext } from "../contexts/DashboardContext";
 import { NavContext } from "../contexts/NavContext";
 import { DarkModeContext } from "../contexts/DarkModeContext";
 
+/**
+ * @param {number} id the id of the dashboard to embed
+ */
 const EmbedDashboard = ({ id }) => {
   const { setDashboard, loading, setLoading } = useContext(DashboardContext);
   const { active } = useContext(NavContext);

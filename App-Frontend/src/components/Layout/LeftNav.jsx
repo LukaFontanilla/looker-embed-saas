@@ -2,7 +2,6 @@ import React, { useContext } from "react";
 import { NavContext } from "../../contexts/NavContext";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { Link } from "react-router-dom";
-import { PermissionsContext } from "../../contexts/PermissionsContext";
 import ExploreOutlinedIcon from "@mui/icons-material/ExploreOutlined";
 import MonetizationOnOutlinedIcon from "@mui/icons-material/MonetizationOnOutlined";
 import AdsClickOutlinedIcon from "@mui/icons-material/AdsClickOutlined";
@@ -12,8 +11,7 @@ import AddCircleOutlineOutlinedIcon from "@mui/icons-material/AddCircleOutlineOu
 
 const LeftNav = () => {
   const matches = useMediaQuery("(min-width: 1280px)");
-  const [showNav, setShowNav] = React.useState(false);
-  const { active, setActive } = useContext(NavContext);
+  const { setActive } = useContext(NavContext);
 
   const navConfig = [
     {
@@ -68,9 +66,9 @@ const LeftNav = () => {
         {matches && navConfig.map((group) => <NavGroups group={group} />)}
         {!matches && (
           <>
-            {[navConfig[0], ...navConfig[1].children].map((elem) => {
+            {[navConfig[0], ...navConfig[1].children].map((elem, index) => {
               return (
-                <Link to={elem.path}>
+                <Link to={elem.path} key={index}>
                   <h2
                     onClick={() => setActive(elem.name)}
                     className="text-sm md:text-lg font-semibold text-zinc-500 dark:text-zinc-400"
@@ -87,7 +85,10 @@ const LeftNav = () => {
   );
 };
 
-const NavGroups = ({ group, show }) => {
+/**
+ * @param {{name: string, icon: React.ReactNode, path: string, children: []}} group the nav group layout
+ */
+const NavGroups = ({ group }) => {
   const { active, setActive } = useContext(NavContext);
 
   return (
@@ -106,8 +107,8 @@ const NavGroups = ({ group, show }) => {
           {group.name}
         </h2>
       )}
-      {group.children.map((child) => (
-        <Link to={child.path}>
+      {group.children.map((child, index) => (
+        <Link to={child.path} key={index}>
           <div
             className={
               active === child.name

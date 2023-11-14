@@ -10,6 +10,7 @@ export default defineConfig({
   },
   server: {
     proxy: {
+      // set proxy for api path to server
       "/api": {
         target: `http://localhost:${
           // process.env.VITE_PBL_BACKEND_PORT || "8080" || "3000"

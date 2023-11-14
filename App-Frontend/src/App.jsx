@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, lazy, Suspense } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import "./App.css";
 import LeftNav from "./components/Layout/LeftNav";
 import { LookerEmbedSDK } from "@looker/embed-sdk";
@@ -39,7 +39,7 @@ const EmbedExplore = lazy(() => import("./components/Pages/EmbedExplore"));
 import AnimationLayout from "./components/Layout/PageTransition";
 
 const RequireAuth = ({ children }) => {
-  const { authed, user } = useAuth();
+  const { authed } = useAuth();
 
   return authed === true ? children : <Navigate to="/login" replace />;
 };
@@ -92,6 +92,14 @@ const routes = {
   ],
 };
 
+/**
+ * Looker function to initialize the LookerEmbedSDK
+ * This does not yet call the auth endpoint, only initializes the SDK
+ * Headers are included to show an example of passing user information to the backend
+ * The auth URL, in this example is a relative path but if the backend and frontend aren't hosted
+ * from the same host, this will need to be the full url to the server endpoint
+ * @param {string} id the uid of the user from Google
+ */
 const EmbedSDKInit = (id) => {
   LookerEmbedSDK.init(import.meta.env.VITE_LOOKERSDK_EMBED_HOST, {
     // The location of the service which will privately create a signed URL
@@ -115,6 +123,9 @@ function App() {
   const [permissions, setPermissions] = useState([]);
   const [queryID, setQueryID] = useState("");
   const [id, setID] = useState(import.meta.env.VITE_SALES_DASHBOARD_ID);
+  const [dashboardConfig, setDashboardConfig] = useState();
+  const [useEmbedSdk, setUseEmbedSdk] = useState(false);
+  const [dashboardFilters, setDashboardFilters] = useState();
   const { authed, user } = useAuth();
   const [dark, setDark] = useState(
     window.matchMedia &&
@@ -127,14 +138,17 @@ function App() {
   useEffect(() => {
     if (authed && user) {
       // initialize indexdb
-      console.log(authed, user);
       initDB();
 
+      // initialize embed sdk once the user exists and is authed
       EmbedSDKInit(JSON.stringify(user));
     }
   }, [authed, user]);
 
   useEffect(() => {
+    // when locale and pdf permissions change
+    // make call to server to update the app user's permissions in Looker
+    // and re-call sso embed url
     if (locale && pdf) {
       fetch("/api/permissions", {
         method: "POST",
@@ -149,7 +163,7 @@ function App() {
             locale: locale,
           },
         }),
-      }).then((res) => {
+      }).then(() => {
         setID(initializeDashboard(active));
         setPermissions([locale, pdf]);
       });
@@ -157,6 +171,9 @@ function App() {
   }, [locale, pdf]);
 
   useEffect(() => {
+    // Effect for responding to changes in external filter values
+    // This responds to a change in the traffic source state and posts the value into a filter object
+    // that's passed to the Looker iFrame and filters the dashboard
     if (dashboard && trafficSource !== "") {
       dashboard.send("dashboard:filters:update", {
         filters: {
@@ -173,7 +190,20 @@ function App() {
       <NavContext.Provider value={{ active, setActive }}>
         <DarkModeContext.Provider value={{ dark, setDark }}>
           <DashboardContext.Provider
-            value={{ dashboard, setDashboard, loading, setLoading, id, setID }}
+            value={{
+              dashboard,
+              setDashboard,
+              loading,
+              setLoading,
+              id,
+              setID,
+              dashboardConfig,
+              setDashboardConfig,
+              useEmbedSdk,
+              setUseEmbedSdk,
+              dashboardFilters,
+              setDashboardFilters,
+            }}
           >
             <ReportConfigContext.Provider value={{ queryID, setQueryID }}>
               <PermissionsContext.Provider
@@ -202,7 +232,7 @@ function App() {
                             ? "p-0"
                             : "p-4"
                         } bg-zinc-50 dark:bg-black ${
-                          pathname === "/login" ? "h-full" : "h-[90vh]"
+                          pathname === "/login" ? "h-full" : "h-full"
                         }`}
                         onClick={() => setShow(false)}
                       >

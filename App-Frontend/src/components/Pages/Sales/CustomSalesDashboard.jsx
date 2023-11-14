@@ -33,14 +33,25 @@ const kFormatter = (num) =>
   Math.abs(num) > 999
     ? Math.sign(num) * (Math.abs(num) / 1000).toFixed(1) + "k"
     : Math.sign(num) * Math.abs(num);
+/**
+ * @param {} data looker data object for x axis
+ */
 const getXValue = (data) => data[Object.keys(data)[0]];
+
+/**
+ * @param {} data looker data object for y axis
+ */
 const getYValue = (data) => data[Object.keys(data)[1]];
+
 const yValueFormatter = (yValue) =>
   kFormatter(yValue).toLocaleString("en-US", {
     style: "currency",
     currency: "USD",
   });
 
+/**
+ * @param {string} trafficSource traffic source value
+ */
 const DashboardPieChart = ({ trafficSource }) => {
   return (
     <ResponsiveContainer height={200}>
@@ -51,7 +62,6 @@ const DashboardPieChart = ({ trafficSource }) => {
           cy={"50%"}
           innerRadius={60}
           outerRadius={80}
-          // fill="#8884d8"
           paddingAngle={5}
           dataKey="value"
         >
@@ -64,11 +74,10 @@ const DashboardPieChart = ({ trafficSource }) => {
                   ? COLORS[0]
                   : COLORS[COLORS.length - 1]
               }
-            /> //COLORS[index % COLORS.length]} />
+            />
           ))}
           <Label
-            value={data.filter((d) => d.name === trafficSource)[0].value} // the number you see in the center
-            // content={<h3 className="tracking-tight text-sm font-medium dark:text-white">{data.filter(d => d.name === trafficSource)[0].value}</h3>}
+            value={data.filter((d) => d.name === trafficSource)[0].value}
             position="center"
           />
         </Pie>
@@ -77,10 +86,17 @@ const DashboardPieChart = ({ trafficSource }) => {
   );
 };
 
+/**
+ * @param {React.ReactNode} children the children jsx elements
+ */
 const VizContainer = ({ children }) => {
   return <ResponsiveContainer height={350}>{children}</ResponsiveContainer>;
 };
 
+/**
+ * @param {} data the looker query data object, should be time series
+ * @param {string} type the type of the chart, area or bar
+ */
 const OverviewViz = ({ data, type }) => {
   return (
     <VizContainer>
@@ -216,6 +232,12 @@ const OverviewViz = ({ data, type }) => {
   );
 };
 
+/**
+ * @param {string} title title of the card
+ * @param {string} child child value
+ * @param {string} value value formatted query result from Looker
+ * @param {string} change percentage from previous
+ */
 const DashboardCards = ({ title, child, value, change }) => {
   return (
     <div className="rounded-xl light:border bg-card bg-white dark:bg-zinc-900 text-card-foreground shadow hover:drop-shadow-lg">
@@ -320,7 +342,7 @@ const DashboardCardsConfig = [
 ];
 
 const CustomSalesDashboard = () => {
-  const { active, setActive } = useContext(NavContext);
+  const { active } = useContext(NavContext);
   const { dark } = useContext(DarkModeContext);
   const [viz, setViz] = useState("area");
   const [trafficSource, setTrafficSource] = useState("Search");
@@ -331,13 +353,16 @@ const CustomSalesDashboard = () => {
       id="sales"
       className={`${
         active === "Sales" ? "z-1" : "-z-10"
-      } p-4 space-y-4 w-[90vw] ${active === "Sales" ? "absolute" : "fixed"}`}
+      } p-4 space-y-4 w-full h-full flex flex-col justify-stretch ${
+        active === "Sales" ? "absolute" : "fixed"
+      }`}
     >
       {status ? <QueryStatus status={status} /> : <></>}
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 h-1/6 items-center justify-center content-center">
+      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 h-auto items-center justify-center content-center">
         {cardData !== undefined
           ? DashboardCardsConfig.map((card, index) => (
               <DashboardCards
+                key={index}
                 title={card.title}
                 child={card.child}
                 value={cardData[Object.keys(cardData)[index]]}
@@ -346,17 +371,17 @@ const CustomSalesDashboard = () => {
             ))
           : DashboardCardsConfig.map((card, index) => (
               <DashboardCards
+                key={index}
                 title={card.title}
                 child={card.child}
                 value={false}
                 change={card.change}
               />
             ))}
-        {/* {DashboardCardsConfig.map((card,index) => <DashboardCards title={card.title} child={card.child} value={cardData && Object.keys(cardData).length > 0 ? cardData[Object.keys(cardData)[index]] : false} change={card.change} />)} */}
       </div>
-      <div className="grid gap-y-4 gap-x-0 xl:gap-4 grid-cols-1 lg:grid-cols-1 xl:grid-cols-6">
+      <div className="grid gap-y-2 gap-x-0 xl:gap-4 grid-cols-1 lg:grid-cols-1 xl:grid-cols-6">
         <div className="col-span-5 rounded-xl light:border bg-card text-card-foreground bg-white dark:bg-zinc-900 shadow hover:brightness-100 hover:drop-shadow-lg">
-          <div className="flex flex-row justify-between align-middle items-center">
+          <div className="flex flex-row justify-between align-middle items-center mb-4">
             <div className="flex flex-col space-y-1.5 p-6">
               <h3 className="font-semibold leading-none tracking-tight text-black dark:text-white">
                 Overview
@@ -377,7 +402,7 @@ const CustomSalesDashboard = () => {
               </button>
             </div>
           </div>
-          <div className="p-6 pt-0 pl-2">
+          <div className="p-6 pt-0 pl-2 h-[30vh]">
             {barChartData !== undefined ? (
               <OverviewViz data={barChartData} type={viz} />
             ) : (
@@ -417,7 +442,7 @@ const CustomSalesDashboard = () => {
           </div>
         </div>
       </div>
-      <div className="grid gap-y-4 grid-cols-1">
+      <div className="grid gap-y-2 grid-cols-1">
         <AccountTable theme={dark ? "dark" : "light"} />
       </div>
     </div>

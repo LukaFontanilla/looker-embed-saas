@@ -5,11 +5,15 @@ import React, { useCallback, useContext, useEffect } from "react";
 import styled from "styled-components";
 import { LookerEmbedSDK } from "@looker/embed-sdk";
 import { DarkModeContext } from "../../contexts/DarkModeContext";
-import { SunspotLoaderComponent } from "../CustomLoader";
+import { SunspotLoaderComponent } from "../Accessories/CustomLoader";
 
 /**
  * First initialized the embed sdk using the endpoint in /backend/routes/api.js
- * Gets explore with ID, can be found in the url by viewing the explore via your looker instance   */
+ * Gets explore with ID, can be found in the url by viewing the explore via your looker instance  */
+
+/**
+ * @param {string} id id the explore to embed. Usually follows this naming convention model_name/explore_name
+ */
 
 const EmbedExplore = ({ id }) => {
   const [loading, setLoading] = React.useState(true);
@@ -53,7 +57,6 @@ const EmbedExplore = ({ id }) => {
             ? import.meta.env.VITE_EMBED_THEME_DARK
             : import.meta.env.VITE_EMBED_THEME,
         )
-        // .withParams({ _theme: params })
         .on("explore:ready", animateExploreLoad)
         // this line performs the call to the auth service to get the iframe's src='' url, places it in the iframe and the client performs the request to Looker
         .build()
@@ -103,7 +106,7 @@ const Explore = styled.div`
 
 const ExploreContainer = styled.div`
   width: 100%;
-  height: 98%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;

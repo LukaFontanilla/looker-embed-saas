@@ -39,6 +39,21 @@ initializeApp({
 
 const db = getFirestore();
 
+const testt = async () => {
+  const userCred = await sdk.ok(
+    sdk.user_for_credential(
+      "embed",
+      'lukas.fontanilla@gmail.com',
+      ),
+      );
+  const embed_user_token = await sdk.login_user(userCred.id.toString());
+  const u = {
+        user_token: embed_user_token.value,
+        token_last_refreshed: Date.now(),
+  };
+  console.log(u)
+  }
+
 /***********************************************
  * Middleware For Checking User Session cookie *
  ***********************************************/
@@ -57,10 +72,13 @@ const requireSessionCookie = (request, response, next) => {
 router.post("/check-user", async (req, res) => {
   if (req.body.user) {
     const { uid, email, displayName } = req.body.user;
+
+    // Construct user object to be sent to Firestore db, which includes:
+    // there unique id, app user information, and Looker user information
     const userTenantPermissions = {
       id: uid,
       appUser: {
-        ...{ uid, email, displayName },
+        ...{ uid, email, displayName, createdAt: Timestamp.now() },
       },
       lookerUser: {
         ...config.authenticatedUser["advancedUser"],
@@ -69,11 +87,13 @@ router.post("/check-user", async (req, res) => {
     };
 
     // add user to firestore db
+    // with a simple example of incrementing session count for the user
     const userRef = db.collection("users").doc(uid);
     const userRecord = await userRef.get();
     if (userRecord.exists) {
       await userRef.update({
         visits: FieldValue.increment(1),
+        vistDates: FieldValue.arrayUnion(Timestamp.now()),
       });
       res.status(200).send({ status: "success", user: userTenantPermissions });
     } else {
@@ -81,14 +101,11 @@ router.post("/check-user", async (req, res) => {
         await userRef.set(userTenantPermissions),
         await userRef.update({
           visits: 1,
+          vistDates: [Timestamp.now()],
         }),
       ]);
       res.status(200).send({ status: "success", user: userTenantPermissions });
     }
-
-    // const sessionRef = db.collection("sessions").doc(uid +  new Timestamp().toString())
-
-    //
   }
   // res.status(400).send({ status: "bad request" });
 });
@@ -134,6 +151,7 @@ router.get("/auth", async (req, res) => {
 
 // Route for getting all the cookies
 router.get("/getcookie", function (req, res) {
+  console.log("Cookies: ", req.cookies);
   res.json(req.cookies);
 });
 

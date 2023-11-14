@@ -2,41 +2,20 @@ import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { NavContext } from "../../../contexts/NavContext";
 import EmbedDashboard from "../../EmbedDashboard";
-import { DashboardContext } from "../../../contexts/DashboardContext";
-import { PermissionsContext } from "../../../contexts/PermissionsContext";
-import { DarkModeContext } from "../../../contexts/DarkModeContext";
-import {
-  initializeDashboard,
-  homePageConfig,
-} from "../../../helpers/staticAssets";
+import { homePageConfig } from "../../../helpers/staticAssets";
 import HomepageLineChartContainer from "./HomepageLineChart";
 import useAuth from "../../../hooks/useAuth";
 
 const Home = () => {
   const { user } = useAuth();
-  const { active, setActive } = useContext(NavContext);
-  const { dashboard, setDashboard, loading, setLoading, id, setID } =
-    useContext(DashboardContext);
-  const { trafficSource, locale, pdf } = useContext(PermissionsContext);
-  const { dark } = useContext(DarkModeContext);
+  const { setActive } = useContext(NavContext);
   const navigate = useNavigate();
 
   useEffect(() => {
     setActive("Home");
   }, []);
 
-  const handleDashboardClick = (type) => {
-    active === "Explore" && setID(initializeDashboard(type));
-    setActive(type);
-    setLoading(true);
-    dashboard.send("dashboard:load", {
-      id: initializeDashboard(type),
-      pushHistory: true,
-    });
-
-    dashboard.send("dashboard:run");
-  };
-
+  // handles home page navigation and keeps the active color in sync with the left nav bar
   const handleClick = (data) => {
     setActive(data);
     console.log(data);
@@ -85,7 +64,7 @@ const Home = () => {
                     className="cursor-pointer"
                   >
                     <div
-                      className="bg-white flex justify-center items-center dark:bg-black shadow-lg p-2 rounded-xl h-40 hover:brightness-125 hover:drop-shadow-lg mb-2"
+                      className="bg-white flex justify-center items-center dark:bg-black shadow-lg p-2 rounded-xl h-40 2xl:h-60 hover:brightness-125 hover:drop-shadow-lg mb-2"
                       id={"svgBackground" + (index + 2).toString()}
                     >
                       <h3
@@ -93,7 +72,6 @@ const Home = () => {
                         style={{
                           textShadow:
                             "0px 1px 0px rgba(221,17,153,.9), 0px -1px 0px rgba(0,0,0,.7)",
-                          // color: '#fff',
                         }}
                       >
                         {subsection.title}

@@ -12,8 +12,11 @@ import { DashboardContext } from "../../contexts/DashboardContext";
 import { NavContext } from "../../contexts/NavContext";
 import { PermissionsContext } from "../../contexts/PermissionsContext";
 import { DarkModeContext } from "../../contexts/DarkModeContext";
-import { SunspotLoaderComponent } from "../CustomLoader";
+import { SunspotLoaderComponent } from "../Accessories/CustomLoader";
 
+/**
+ * @param {string} id of the dashboard to embed
+ */
 const EmbedDashboardMarketing = ({ id }) => {
   const { dashboard, setDashboard } = useContext(DashboardContext);
   const { active, setActive } = useContext(NavContext);
@@ -23,6 +26,10 @@ const EmbedDashboardMarketing = ({ id }) => {
     useContext(PermissionsContext);
   const { dark } = useContext(DarkModeContext);
 
+  // set the global dashboard state
+  // this is a common pattern to acquire a reference to the dashboard object (ie. Looker iFrame)
+  // use this in the .then() method of the embed sdk
+  // the dashboard object can be used for many things, like re-running the dashboard from outside the iFrame
   const handleDashboardLoaded = (dashboard) => {
     setDashboard(dashboard);
   };
@@ -51,6 +58,8 @@ const EmbedDashboardMarketing = ({ id }) => {
       }
       el.innerHTML = "";
 
+      // check if an embed session exists, if so private embed to reduce round trips
+      // to the server. Else call auth endpoint and provide SSO Embed URL
       const embed = await EmbedCheckAuth(
         "dashboard",
         import.meta.env.VITE_MARKETING_DASHBOARD_ID,
@@ -89,6 +98,10 @@ const EmbedDashboardMarketing = ({ id }) => {
           console.log("An unexpected error occurred", error);
         });
     },
+
+    // only rebuild this function definition when the permissions or dark state change
+    // permissions requests a new sso embed url
+    // dark updates the dashboard with a new named theme
     [permissions, dark],
   );
 
@@ -148,7 +161,7 @@ const Dashboard = styled.div`
 
 const DashboardContainer = styled.div`
   width: 100%;
-  height: 98%;
+  height: 100%;
   display: flex;
   opacity: 0.1;
   zindex: -1;

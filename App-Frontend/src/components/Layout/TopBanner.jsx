@@ -7,10 +7,6 @@ const TopBanner = () => {
   const { authed, user, logout } = useAuth();
   const { dark, setDark } = useContext(DarkModeContext);
 
-  // if (!authed) {
-  //   return <></>;
-  // }
-
   return (
     <nav className="flex items-center justify-between px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 z-10">
       <div className="flex items-center space-x-4">
@@ -82,9 +78,9 @@ const TopBanner = () => {
           >
             <path
               stroke="currentColor"
-              stroke-linecap="round"
-              stroke-miterlimit="10"
-              stroke-width="32"
+              strokeLinecap="round"
+              strokeMiterlimit="10"
+              strokeWidth="32"
               d="M256 48v48M256 416v48M403.08 108.92l-33.94 33.94M142.86 369.14l-33.94 33.94M464 256h-48M96 256H48M403.08 403.08l-33.94-33.94M142.86 142.86l-33.94-33.94"
             />
             <circle
@@ -92,15 +88,14 @@ const TopBanner = () => {
               cy="256"
               r="80"
               stroke="currentColor"
-              stroke-linecap="round"
-              stroke-miterlimit="10"
-              stroke-width="32"
+              strokeLinecap="round"
+              strokeMiterlimit="10"
+              strokeWidth="32"
             />
           </svg>
           <svg
             id="moon"
             className=" h-5 w-5 text-zinc-500 dark:text-zinc-400"
-            // fill="#f8f8f8"
             fill="none"
             height="24"
             stroke="currentColor"

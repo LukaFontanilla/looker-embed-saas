@@ -12,8 +12,11 @@ import { DashboardContext } from "../../contexts/DashboardContext";
 import { NavContext } from "../../contexts/NavContext";
 import { PermissionsContext } from "../../contexts/PermissionsContext";
 import { DarkModeContext } from "../../contexts/DarkModeContext";
-import { SunspotLoaderComponent } from "../CustomLoader";
+import { SunspotLoaderComponent } from "../Accessories/CustomLoader";
 
+/**
+ * @param {string} id of the dashboard to embed
+ */
 const EmbedDashboardFinance = ({ id }) => {
   const { dashboard, setDashboard } = useContext(DashboardContext);
   const { active, setActive } = useContext(NavContext);
@@ -24,6 +27,10 @@ const EmbedDashboardFinance = ({ id }) => {
     useContext(PermissionsContext);
   const { dark } = useContext(DarkModeContext);
 
+  // set the global dashboard state
+  // this is a common pattern to acquire a reference to the dashboard object (ie. Looker iFrame)
+  // use this in the .then() method of the embed sdk
+  // the dashboard object can be used for many things, like re-running the dashboard from outside the iFrame
   const handleDashboardLoaded = (dashboard) => {
     setDashboard(dashboard);
   };
@@ -52,6 +59,8 @@ const EmbedDashboardFinance = ({ id }) => {
       }
       el.innerHTML = "";
 
+      // check if an embed session exists, if so private embed to reduce round trips
+      // to the server. Else call auth endpoint and provide SSO Embed URL
       const embed = await EmbedCheckAuth(
         "dashboard",
         import.meta.env.VITE_SALES_DASHBOARD_ID,
@@ -60,7 +69,6 @@ const EmbedDashboardFinance = ({ id }) => {
         dark,
       );
       // adds the iframe to the DOM as a child of a specific element
-      // const embed = LookerEmbedSDK.createDashboardWithId(id)
       embed
         .appendTo(el)
         .withTheme(
@@ -76,10 +84,6 @@ const EmbedDashboardFinance = ({ id }) => {
           console.log("Drill Menu Clicked: ", e);
         })
         .on("dashboard:run:complete", animateDashboardLoad)
-        .on("dashboard:loaded", (e) => {
-          // console.log("dashboard:loaded", e);
-        })
-
         // this line performs the call to the auth service to get the iframe's src='' url, places it in the iframe and the client performs the request to Looker
         .build()
         // this establishes event communication between the iframe and parent page
@@ -90,6 +94,10 @@ const EmbedDashboardFinance = ({ id }) => {
           console.log("An unexpected error occurred", error);
         });
     },
+
+    // only rebuild this function definition when the permissions or dark state change
+    // permissions requests a new sso embed url
+    // dark updates the dashboard with a new named theme
     [permissions, dark],
   );
 
@@ -148,7 +156,7 @@ const Dashboard = styled.div`
 
 const DashboardContainer = styled.div`
   width: 100%;
-  height: 98%;
+  height: 100%;
   display: flex;
   opacity: 0.1;
   animation: fadeIn ease-in ease-out 3s;

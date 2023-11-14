@@ -58,7 +58,6 @@ class PblSession extends AuthSession {
   async authenticate(props) {
     const token = await this.getToken();
     if (token && token.access_token) {
-      console.log("Props: ", props);
       props.mode = "cors";
       delete props.credentials;
       props.headers = {
@@ -79,14 +78,6 @@ class PblSessionEmbed extends PblSession {
       // logged in user to the backend instead.
       // The backend would then handle assigning appropriate permissions to the user.
       "/api/embed-user/token",
-      // {
-      //   method: "POST",
-      //   credentials: "include",
-      //   headers: {
-      //     Accept: "application/json",
-      //     "Content-Type": "application/json",
-      //   },
-      // },
     );
   }
 }

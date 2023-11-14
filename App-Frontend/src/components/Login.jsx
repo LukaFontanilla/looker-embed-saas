@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { useContext, lazy, Suspense } from "react";
 import useAuth from "../hooks/useAuth";
-const LoginAnimation = lazy(() => import("./LoginAnimation"));
-const LoginAnimationLight = lazy(() => import("./LoginAnimationLight"));
+const LoginAnimation = lazy(() => import("./Accessories/LoginAnimation"));
+const LoginAnimationLight = lazy(() =>
+  import("./Accessories/LoginAnimationLight"),
+);
 import { DarkModeContext } from "../contexts/DarkModeContext";
 import GoogleIcon from "@mui/icons-material/Google";
 

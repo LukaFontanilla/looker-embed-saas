@@ -1,3 +1,13 @@
+/**
+ * A standard hook to handle authentication in the application
+ * Here we are using firebase to handle authentication but this pattern can be
+ * used with any authentication provider. We are returning variables that:
+ * can login a user, logout a user, and describe whether the user exists and is authenticated.
+ *
+ * No call to Looker is made in this code. The server API will handle the core Looker logic for
+ * authentication.
+ */
+
 import * as React from "react";
 import { loginWithGoogle, logout } from "../helpers/firebase";
 
@@ -43,6 +53,9 @@ function useAuth() {
   };
 }
 
+/**
+ * @param {React.ReactNode} children
+ */
 export function AuthProvider({ children }) {
   const auth = useAuth();
 

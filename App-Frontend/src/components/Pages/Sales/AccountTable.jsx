@@ -14,6 +14,9 @@ import { styled } from "@mui/material/styles";
 import Pagination from "@mui/material/Pagination";
 import PaginationItem from "@mui/material/PaginationItem";
 
+/**
+ * @param {string} theme light or dark mode
+ */
 function customCheckbox(theme) {
   return {
     "& .MuiCheckbox-root svg": {
@@ -57,6 +60,9 @@ function customCheckbox(theme) {
   };
 }
 
+/**
+ * @param {string} theme light or dark mode
+ */
 const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
   border: 0,
   color: theme === "light" ? "rgba(0,0,0,.85)" : "rgba(255,255,255,0.85)",
@@ -114,7 +120,7 @@ function CustomPagination() {
   );
 }
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 8;
 
 function CustomToolbar() {
   return (
@@ -130,6 +136,9 @@ function CustomToolbar() {
   );
 }
 
+/**
+ * @param {string} theme light or dark mode
+ */
 const AccountTable = ({ theme }) => {
   const { data } = useDemoData({
     dataSet: "Employee",
@@ -163,7 +172,6 @@ const AccountTable = ({ theme }) => {
         }}
         columns={columns}
         rows={data.rows}
-        // {...data}
       />
     </div>
   );

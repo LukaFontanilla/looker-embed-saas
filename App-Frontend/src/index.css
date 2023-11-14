@@ -18,6 +18,15 @@
   -webkit-text-size-adjust: 100%;
 }
 
+div::-webkit-scrollbar {
+  display: none;
+}
+
+div {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 a {
   font-weight: 500;
   color: #213547;

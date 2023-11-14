@@ -10,6 +10,10 @@ const MODELS = {
 // Silently pre-load all models
 useGLTF.preload(MODELS["PLANET"]);
 
+/**
+ * @param {string} url the string of the either file path or cdn url to the gltf model
+ * @param {} props remaining jsx props passed to the component
+ */
 function Model({ url, ...props }) {
   const { scene } = useGLTF(url);
 
@@ -23,7 +27,7 @@ function Model({ url, ...props }) {
   );
 }
 
-const LoginAnimation = ({ children }) => {
+const LoginAnimation = () => {
   const [dpr, setDpr] = useState(1.5);
 
   return (
@@ -41,11 +45,8 @@ const LoginAnimation = ({ children }) => {
           <Suspense fallback={null}>
             <Model url={MODELS["PLANET"]} />
           </Suspense>
-          {/* <ambientLight /> */}
           <ambientLight intensity={0.1} />
-          {/* <pointLight position={[0, 10, 2000]} color="#d19" intensity={1.5} /> */}
           <directionalLight position={[0, 10, 20]} color="#d19" intensity={1} />
-          {/* <hemisphereLight color="#d19" /> */}
           <Suspense fallback={null}>
             <EffectComposer smaa>
               <Bloom mipmapBlur luminanceThreshold={0.4} />

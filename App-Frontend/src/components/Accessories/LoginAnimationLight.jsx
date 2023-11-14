@@ -1,6 +1,6 @@
 import Lottie from "lottie-react";
-import React, { useContext } from "react";
-import animationData from "../assets/login-light-data.json";
+import React from "react";
+import animationData from "../../assets/login-light-data.json";
 
 const defaultOptions = {
   loop: true,
@@ -17,8 +17,6 @@ const LoginAnimationLight = () => {
       <Lottie
         id="lottie"
         animationData={animationData}
-        // loop={true}
-        // autoplay={false}
         rendererSettings={defaultOptions.rendererSettings}
       />
     </div>
