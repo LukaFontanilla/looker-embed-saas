@@ -31,10 +31,15 @@ const {
  */
 
 //Define path to secret key generated for service account
-const serviceAccount = require("../firebase-admin.json");
+// const serviceAccount = require("../firebase-admin.json");
 //Initialize the app
 initializeApp({
-  credential: cert(serviceAccount),
+  credential: cert({
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    // replace `\` and `n` character pairs w/ single `\n` character
+    privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+  }),
 });
 
 const db = getFirestore();
@@ -57,7 +62,6 @@ const requireSessionCookie = (request, response, next) => {
 router.post("/check-user", async (req, res) => {
   if (req.body.user) {
     const { uid, email, displayName } = req.body.user;
-
     // Construct user object to be sent to Firestore db, which includes:
     // there unique id, app user information, and Looker user information
     const userTenantPermissions = {
@@ -75,6 +79,7 @@ router.post("/check-user", async (req, res) => {
     // with a simple example of incrementing session count for the user
     const userRef = db.collection("users").doc(uid);
     const userRecord = await userRef.get();
+    console.log("User Record: ", userRecord);
     if (userRecord.exists) {
       await userRef.update({
         visits: FieldValue.increment(1),
@@ -144,13 +149,13 @@ router.get("/getcookie", function (req, res) {
  * Create an API auth token based on the provided embed user credentials
  */
 router.get("/embed-user/token", requireSessionCookie, async (req, res) => {
+  console.log(req.cookies);
   const userCred = await sdk.ok(
     sdk.user_for_credential(
       "embed",
       JSON.parse(req.cookies.embedSession.userID).email,
     ),
   );
-
   const embed_user_token = await sdk.login_user(userCred.id.toString());
   const u = {
     user_token: embed_user_token.value,
