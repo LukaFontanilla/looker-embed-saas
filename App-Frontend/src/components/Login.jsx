@@ -29,7 +29,7 @@ const Login = () => {
           onClick={handleLogin}
           className={`z-1 shadow ${
             dark ? "hover:drop-shadow-xl" : "hover:drop-shadow-lg"
-          } ${dark && "bg-transparent"}`}
+          } bg-transparent`}
         >
           <span className="dark:text-zinc-50 text-zinc-900">
             <GoogleIcon className="pr-2" />

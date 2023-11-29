@@ -13,7 +13,7 @@
 # limitations under the License.
 
 runtime: nodejs16
-service: frontend
+service: looker-embed-saas-frontend
 handlers:
     # Serve all static files with urls ending with a file extension
     - url: /(.*\..+)$

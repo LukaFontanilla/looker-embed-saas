@@ -61,6 +61,7 @@ const requireSessionCookie = (request, response, next) => {
 
 router.post("/check-user", async (req, res) => {
   if (req.body.user) {
+    // logging.info("User: ", req.body.user)
     const { uid, email, displayName } = req.body.user;
     // Construct user object to be sent to Firestore db, which includes:
     // there unique id, app user information, and Looker user information
@@ -141,15 +142,20 @@ router.get("/auth", async (req, res) => {
 
 // Route for getting all the cookies
 router.get("/getcookie", function (req, res) {
-  console.log("Cookies: ", req.cookies);
-  res.json(req.cookies);
+  console.log("Cookies: ", req.cookies)
+  if(Object.getPrototypeOf(req.cookies) !== null) {
+    console.log(req.cookies)
+    res.json(req.cookies)
+  } else {
+    console.log("No cookies, authenticating")
+    res.json({ embedSession: '' })
+  }
 });
 
 /**
  * Create an API auth token based on the provided embed user credentials
  */
 router.get("/embed-user/token", requireSessionCookie, async (req, res) => {
-  console.log(req.cookies);
   const userCred = await sdk.ok(
     sdk.user_for_credential(
       "embed",

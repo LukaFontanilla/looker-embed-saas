@@ -121,7 +121,7 @@ function App() {
   const [trafficSource, setTrafficSource] = useState("");
   const [userType, setUserType] = useState("basic");
   const [permissions, setPermissions] = useState([]);
-  const [queryID, setQueryID] = useState("");
+  const [queryID, setQueryID] = useState("53185");
   const [id, setID] = useState(import.meta.env.VITE_SALES_DASHBOARD_ID);
   const [dashboardConfig, setDashboardConfig] = useState();
   const [useEmbedSdk, setUseEmbedSdk] = useState(false);
@@ -139,6 +139,8 @@ function App() {
     if (authed && user) {
       // initialize indexdb
       initDB();
+
+      console.log(user)
 
       // initialize embed sdk once the user exists and is authed
       EmbedSDKInit(JSON.stringify(user));
@@ -227,7 +229,7 @@ function App() {
                     <div className="flex flex-1 overflow-hidden">
                       {authed ? <LeftNav /> : <></>}
                       <main
-                        className={`flex-1 overflow-y-scroll ${
+                        className={`flex-1 overflow-hidden ${
                           (active !== "Home" && active !== "Sales") ||
                           pathname === "/login"
                             ? "p-0"

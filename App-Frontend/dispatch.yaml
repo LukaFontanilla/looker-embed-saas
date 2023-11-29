@@ -18,4 +18,4 @@
 
   dispatch:
     - url: '*/api/*'
-      service: default
+      service: looker-embed-saas-backend

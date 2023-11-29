@@ -6,6 +6,18 @@ import {
 } from "@looker/embed-sdk";
 import { StaticThemeObject } from "./StaticThemeObject";
 
+const fetchServerCookie = async () => {
+  const response = await fetch("/api/getcookie")
+  console.log(response)
+  if(response.ok) {
+    console.log(response.text())
+    const cookie = await response.json()
+    return cookie
+  } 
+
+  return undefined
+}
+
 /**
  *
  * @param {string} type of content to be embedded (will either be dashboard, look or explore)
@@ -13,34 +25,39 @@ import { StaticThemeObject } from "./StaticThemeObject";
  * @param {string} url of embedded content (should include embed domain and any theme customizations)
  * @returns {EmbedBuilder<LookerEmbedDashboard | LookerEmbedExplore | LookerEmbedLook>}
  */
+
 export const EmbedCheckAuth = async (type, id, url, active, dark) => {
-  const cookie = await fetch("/api/getcookie").then((res) => res.json());
+  const cookie = await fetchServerCookie()
+  console.log("Cookie: ", cookie)
   let embed;
   // add switch statement checking if dashboard, explore, or look
   // then apply the same if else below, expect repeated for each
   switch (type) {
     case "dashboard":
+    //   if (
+    //     'embedSession' in cookie &&
+    //     cookie.embedSession.setTime + cookie.embedSession.validFor > Date.now()
+    //   ) {
+        // embed = LookerEmbedSDK.createDashboardWithUrl(
+    //       url +
+    //         id +
+    //         `?sdk=2&embed_domain=${import.meta.env.VITE_EMBED_HOST}&theme=${
+    //           dark
+    //             ? import.meta.env.VITE_EMBED_THEME_DARK
+    //             : import.meta.env.VITE_EMBED_THEME
+    //         }`,
+    //     );
+    //     break;
+    //   } else {
+        // console.log("No embed session detected. Authenticating...");
+      embed = LookerEmbedSDK.createDashboardWithId(id);
+      break;
+      // }
+    case "look":
       if (
-        cookie.embedSession !== undefined &&
+        'embedSession' in cookie &&
         cookie.embedSession.setTime + cookie.embedSession.validFor > Date.now()
       ) {
-        embed = LookerEmbedSDK.createDashboardWithUrl(
-          url +
-            id +
-            `?sdk=2&embed_domain=${import.meta.env.VITE_EMBED_HOST}&theme=${
-              dark
-                ? import.meta.env.VITE_EMBED_THEME_DARK
-                : import.meta.env.VITE_EMBED_THEME
-            }`,
-        );
-        break;
-      } else {
-        console.log("No embed session detected. Authenticating...");
-        embed = LookerEmbedSDK.createDashboardWithId(id);
-        break;
-      }
-    case "look":
-      if (cookie.embedSession !== undefined) {
         embed = LookerEmbedSDK.createLookWithUrl(
           url +
             `?sdk=2&embed_domain=${
@@ -55,7 +72,7 @@ export const EmbedCheckAuth = async (type, id, url, active, dark) => {
       }
     case "explore":
       if (
-        cookie.embedSession !== undefined &&
+        'embedSession' in cookie &&
         cookie.embedSession.setTime + cookie.embedSession.validFor > Date.now()
       ) {
         embed = LookerEmbedSDK.createExploreWithUrl(

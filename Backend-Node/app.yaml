@@ -18,7 +18,7 @@
 
 runtime: nodejs16
 
-service: default
+service: looker-embed-saas-backend
 
 network:  
   forwarded_ports:  

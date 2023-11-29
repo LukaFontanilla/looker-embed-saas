@@ -7,6 +7,7 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "@google-cloud/logging-bunyan": "^5.0.1",
     "@looker/sdk-node": "^21.0.9",
     "cookie-parser": "^1.4.6",
     "cookie-session": "^2.0.0",

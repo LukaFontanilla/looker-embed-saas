@@ -94,7 +94,7 @@ const SSOEmbedComponent = () => {
               >
                 <AddOutlinedIcon fontSize="large" />
               </span>
-              <h3 className="text-lg">Add Looker SSO Embed URL to Embed</h3>
+              <h3 className="text-lg dark:text-zinc-50 text-zinc-900">Add Looker SSO Embed URL to Embed</h3>
             </div>
           ) : (
             // It's as simple as taking the generated SSO Embed URL OR Private Embed URL and placing that in an iFrame
