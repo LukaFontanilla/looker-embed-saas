@@ -140,8 +140,6 @@ function App() {
       // initialize indexdb
       initDB();
 
-      console.log(user)
-
       // initialize embed sdk once the user exists and is authed
       EmbedSDKInit(JSON.stringify(user));
     }

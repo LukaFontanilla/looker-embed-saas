@@ -17,5 +17,15 @@
 # Default server port
 
   dispatch:
-    - url: '*/api/*'
+
+    - url: "atomfashion.io/*"
+      service: looker-dat-atom
+
+    - url: "govportal.io/*"
+      service: looker-dat-vision
+
+    - url: "looker-dat-atom-staging-dot-pbl-demo-2020-281322.an/*"
+      service: looker-dat-atom-staging
+
+    - url: "*/api/*"
       service: looker-embed-saas-backend

@@ -23,8 +23,10 @@ const googleProvider = new GoogleAuthProvider();
 const loginWithGoogle = async () => {
   try {
     const res = await signInWithPopup(auth, googleProvider);
+    const idToken = await res.user.getIdToken();
+
     const { displayName, photoURL, email, uid } = res.user;
-    return { displayName, photoURL, email, uid };
+    return { displayName, photoURL, email, uid, idToken };
   } catch (err) {
     console.error(err);
     alert(err.message);

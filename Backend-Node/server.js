@@ -41,7 +41,15 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/", indexRouter);
+const jsonErrorHandler = (err, req, res, next) => {
+    res.status(err.status).send({
+      status: err.status,
+      message: err.message,
+    });
+    return next();
+  };
+app.use(jsonErrorHandler);
+// app.use("/", indexRouter);
 app.use("/api", apiRouter);
 
 module.exports = app;

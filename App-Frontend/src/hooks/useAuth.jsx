@@ -42,10 +42,17 @@ function useAuth() {
     },
     logout() {
       return new Promise((res) => {
-        logout();
-        setAuthed(false);
-        // authed.current = false;
-        res();
+        fetch("/api/logout-user", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }).then(() => {
+          logout();
+          setAuthed(false);
+          // authed.current = false;
+          res();
+        })
       });
     },
     authed,

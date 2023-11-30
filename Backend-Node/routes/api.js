@@ -19,6 +19,7 @@ const { LookerNodeSDK } = require("@looker/sdk-node");
 const sdk = LookerNodeSDK.init40();
 const fetch = require("node-fetch");
 const { initializeApp, cert } = require("firebase-admin/app");
+const { getAuth } = require("firebase-admin/auth");
 const {
   getFirestore,
   Timestamp,
@@ -43,16 +44,25 @@ initializeApp({
 });
 
 const db = getFirestore();
+const auth = getAuth();
 
 /***********************************************
  * Middleware For Checking User Session cookie *
  ***********************************************/
-const requireSessionCookie = (request, response, next) => {
-  if (!request.cookies && !request.cookies.embedSession) {
-    response.status(404).send({ redirect: "/login" });
-  } else {
-    next();
-  }
+const requireSessionCookie = (req, res, next) => {
+  console.log(req.cookies)
+  const sessionCookie = req.cookies.appUserSession || "";
+  // Verify the session cookie. In this case an additional check is added to detect
+  // if the user's Firebase session was revoked, user deleted/disabled, etc.
+  auth
+    .verifySessionCookie(sessionCookie, true /** checkRevoked */)
+    .then((decodedClaims) => {
+      next();
+    })
+    .catch((error) => {
+      // Session cookie is unavailable or invalid. Force user to login.
+      res.status(404).send({ redirect: "/login" });
+    });
 };
 
 /***********************************
@@ -61,51 +71,93 @@ const requireSessionCookie = (request, response, next) => {
 
 router.post("/check-user", async (req, res) => {
   if (req.body.user) {
-    // logging.info("User: ", req.body.user)
-    const { uid, email, displayName } = req.body.user;
-    // Construct user object to be sent to Firestore db, which includes:
-    // there unique id, app user information, and Looker user information
-    const userTenantPermissions = {
-      id: uid,
-      appUser: {
-        ...{ uid, email, displayName, createdAt: Timestamp.now() },
-      },
-      lookerUser: {
-        ...config.authenticatedUser["advancedUser"],
-        external_user_id: email,
-      },
-    };
+    // Get the ID token passed and the CSRF token.
+    const idToken = req.body.user.idToken.toString();
+    // Set session expiration to 1 days.
+    const expiresIn = 60 * 60 * 24 * 1 * 1000;
+    let sessionCookie;
+    // Create the session cookie. This will also verify the ID token in the process.
+    // The session cookie will have the same claims as the ID token.
+    // To only allow session cookie setting on recent sign-in, auth_time in ID token
+    // can be checked to ensure user was recently signed in before creating a session cookie.
+    auth.verifyIdToken(idToken).then(async (decodedIdToken) => {
+      // Only process if the user just signed in in the last 5 minutes.
+      if (new Date().getTime() / 1000 - decodedIdToken.auth_time < 5 * 60) {
+        const { uid, email, displayName } = req.body.user;
+        // Construct user object to be sent to Firestore db, which includes:
+        // there unique id, app user information, and Looker user information
+        const userTenantPermissions = {
+          id: uid,
+          appUser: {
+            ...{ uid, email, displayName, createdAt: Timestamp.now() },
+          },
+          lookerUser: {
+            ...config.authenticatedUser["advancedUser"],
+            external_user_id: email,
+          },
+        };
 
-    // add user to firestore db
-    // with a simple example of incrementing session count for the user
-    const userRef = db.collection("users").doc(uid);
-    const userRecord = await userRef.get();
-    console.log("User Record: ", userRecord);
-    if (userRecord.exists) {
-      await userRef.update({
-        visits: FieldValue.increment(1),
-        vistDates: FieldValue.arrayUnion(Timestamp.now()),
-      });
-      res.status(200).send({ status: "success", user: userTenantPermissions });
-    } else {
-      Promise.all([
-        await userRef.set(userTenantPermissions),
-        await userRef.update({
-          visits: 1,
-          vistDates: [Timestamp.now()],
-        }),
-      ]);
-      res.status(200).send({ status: "success", user: userTenantPermissions });
-    }
+        // add user to firestore db
+        // with a simple example of incrementing session count for the user
+        const userRef = db.collection("users").doc(uid);
+        const userRecord = await userRef.get();
+        if (userRecord.exists) {
+          await userRef.update({
+            visits: FieldValue.increment(1),
+            vistDates: FieldValue.arrayUnion(Timestamp.now()),
+          });
+        } else {
+          Promise.all([
+            await userRef.set(userTenantPermissions),
+            await userRef.update({
+              visits: 1,
+              vistDates: [Timestamp.now()],
+            }),
+          ]);
+        }
+
+        // Create session cookie and set it.
+        try {
+          sessionCookie = await auth.createSessionCookie(idToken, { expiresIn });
+          console.log(sessionCookie)
+        } catch (e) {
+          res.status(401).send("Invalid ID Token")
+        }
+
+        const options = {
+          maxAge: expiresIn,
+          httpOnly: true,
+          secure: false,
+        }
+
+        res.cookie("appUserSession", sessionCookie, options)
+
+        // return user tenant permissions
+        res
+        .status(200)
+        .send({ status: "success", user: userTenantPermissions });
+
+      } else {
+        // A user that was not recently signed in is trying to set a session cookie.
+        // To guard against ID token theft, require re-authentication.
+        res
+          .status(401)
+          .send({ status: "false", message: "Recent sign in required!" });
+      }
+    });
   }
-  // res.status(400).send({ status: "bad request" });
+});
+
+router.post('/logout-user', (req, res) => {
+  res.clearCookie('session');
+  res.status(200).send({ status: "success", message: "Cleared session cookie for user"})
 });
 
 /*****************************************
  * Looker Authentication                 *
  *****************************************/
 
-router.get("/auth", async (req, res) => {
+router.get("/auth", requireSessionCookie, async (req, res) => {
   let options = {
     maxAge: 3600000, // expires in an hour
     httpOnly: true, // The cookie only accessible by the web server
@@ -141,13 +193,12 @@ router.get("/auth", async (req, res) => {
 });
 
 // Route for getting all the cookies
-router.get("/getcookie", function (req, res) {
-  console.log("Cookies: ", req.cookies)
-  if(Object.getPrototypeOf(req.cookies) !== null) {
+router.get("/getcookie", (req, res) => {
+  if(Object.getPrototypeOf(req.cookies) !== null && 'embedSession' in req.cookies) {
     console.log(req.cookies)
     res.json(req.cookies)
   } else {
-    console.log("No cookies, authenticating")
+    console.log("No embed cookies, authenticating")
     res.json({ embedSession: '' })
   }
 });
