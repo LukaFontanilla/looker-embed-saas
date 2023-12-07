@@ -19,7 +19,7 @@ const Home = () => {
   const handleClick = (data) => {
     setActive(data);
     console.log(data);
-    data !== "Explore"
+    data !== "Data Explore"
       ? navigate(`/insights/${data.toLowerCase()}`)
       : navigate(`/self-service/explore`);
   };

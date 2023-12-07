@@ -27,6 +27,15 @@ div {
   scrollbar-width: none;
 }
 
+iframe::-webkit-scrollbar {
+  display: none;
+}
+
+iframe {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 a {
   font-weight: 500;
   color: #213547;

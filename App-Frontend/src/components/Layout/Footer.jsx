@@ -171,35 +171,41 @@ const Footer = () => {
           </div>
           {active === "Marketing" || active === "Finance" ? (
             <>
-              <h3 className="text-xl font-bold mb-2 mt-4 dark:text-white text-black">
-                Filters
-              </h3>
-              <div
+              {active === "Marketing" ? (
+                <>
+                <h3 className="text-xl font-bold mb-2 mt-4 dark:text-white text-black">
+                  Filters
+                </h3>
+                <div
                 className="bg-white dark:bg-black shadow-lg mb-4 p-2 rounded-xl h-40 w-full hover:brightness-125 hover:drop-shadow-lg"
                 id="svgBackground2"
-              >
-                <h3 className="text-xl font-bold mb-2 mt-4 text-white">
-                  Traffic Source
-                </h3>
-                <Chip
-                  label="Organic"
-                  variant={trafficSource === "Organic" ? "filled" : "outlined"}
-                  class="text-white border rounded-xl w-1/3 m-1"
-                  onClick={(e) => handleChange(e, "filter")}
-                />
-                <Chip
-                  label="Search"
-                  variant={trafficSource === "Search" ? "filled" : "outlined"}
-                  class="text-white border rounded-xl w-1/4 m-1"
-                  onClick={(e) => handleChange(e, "filter")}
-                />
-                <Chip
-                  label="Email"
-                  variant={trafficSource === "Email" ? "filled" : "outlined"}
-                  class="text-white border rounded-xl w-1/4 m-1"
-                  onClick={(e) => handleChange(e, "filter")}
-                />
-              </div>
+                >
+                  <h3 className="text-xl font-bold mb-2 mt-4 text-white">
+                    Traffic Source
+                  </h3>
+                  <Chip
+                    label="Organic"
+                    variant={trafficSource === "Organic" ? "filled" : "outlined"}
+                    class="text-white border rounded-xl w-1/3 m-1"
+                    onClick={(e) => handleChange(e, "filter")}
+                    />
+                  <Chip
+                    label="Search"
+                    variant={trafficSource === "Search" ? "filled" : "outlined"}
+                    class="text-white border rounded-xl w-1/4 m-1"
+                    onClick={(e) => handleChange(e, "filter")}
+                    />
+                  <Chip
+                    label="Email"
+                    variant={trafficSource === "Email" ? "filled" : "outlined"}
+                    class="text-white border rounded-xl w-1/4 m-1"
+                    onClick={(e) => handleChange(e, "filter")}
+                    />
+                </div>
+                </>
+              )
+            : <></>
+            }
               <div className="flex flex-col justify-between align-star w-full mt-6">
                 <h3 className="text-xl font-bold mb-2 mt-4 dark:text-white text-black">
                   Permissions

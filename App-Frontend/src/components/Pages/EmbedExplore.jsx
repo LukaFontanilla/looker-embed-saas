@@ -58,6 +58,7 @@ const EmbedExplore = ({ id }) => {
             : import.meta.env.VITE_EMBED_THEME,
         )
         .on("explore:ready", animateExploreLoad)
+        .on("explore:run:complete", (e) => console.log(e))
         // this line performs the call to the auth service to get the iframe's src='' url, places it in the iframe and the client performs the request to Looker
         .build()
         // this establishes event communication between the iframe and parent page
