@@ -18,8 +18,26 @@ const useSalesInsightsFetch = () => {
    * @param {{query_id: string, result_format: string, apply_formatting: boolean, cache: boolean}} data Looker Run Query, query object
    */
   const fetchLookerData = async (data) => {
+    const { model, view, fields, pivots, filters, sorts, limits } = await sdk.ok(sdk.query_for_slug(data.query_id, 'model,view,fields,pivots,filters,sorts,limits'))
     try {
-      return await sdk.ok(sdk.run_query(data));
+      return await sdk.ok(
+        sdk.run_inline_query(
+          {
+            result_format: data.result_format,
+            body: {
+              model: model,
+              view: view,
+              fields: fields,
+              pivots: pivots,
+              filters: filters,
+              sorts: sorts,
+              limits: limits
+            },
+            apply_formatting: data.apply_formatting,
+            cache: data.cache
+          }
+        )
+      );
     } catch (e) {
       setError(e);
       return undefined;
@@ -35,7 +53,7 @@ const useSalesInsightsFetch = () => {
     setStatus("fetching");
     const queryResponses = await Promise.all([
       await fetchLookerData({
-        query_id: "53147", //'4240', // the id of the query in Looker revenue, subscriptions, sales, active now
+        query_id: import.meta.env.VITE_SINGLE_VALUE_QUERY_ID, //'4240', // the id of the query in Looker revenue, subscriptions, sales, active now
         result_format: "json",
         apply_formatting: true,
         cache: true,
@@ -68,20 +86,16 @@ const useSalesInsightsFetch = () => {
     if (active === "Sales") {
       async function fetchData() {
         setStatus("checkDB");
-        // const data = await getStoreData("homepage");
-        // console.log(data);
-        // if (
-        //   data.length === 0
-        // || data[1].length === 0
-        // ) {
-        const queryData = await fetchedFromDB(queryID);
-        return queryData;
-        // }
-        // setStatus("fetchedFromDB");
-        // return data;
+        const data = await getStoreData("homepage");
+        console.log(data);
+        if (data.length === 0 || data[1].length === 0) {
+          const queryData = await fetchedFromDB(queryID);
+          return queryData;
+        }
+        setStatus("fetchedFromDB");
+        return data;
       }
       fetchData().then((res) => {
-        console.log(res);
         setCardData(res[0]);
         setBarChartData(res[1]);
         setStatus("fetchedFromDB");

@@ -18,7 +18,6 @@ const Home = () => {
   // handles home page navigation and keeps the active color in sync with the left nav bar
   const handleClick = (data) => {
     setActive(data);
-    console.log(data);
     data !== "Data Explore"
       ? navigate(`/insights/${data.toLowerCase()}`)
       : navigate(`/self-service/explore`);

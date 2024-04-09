@@ -13,6 +13,7 @@ import { NavContext } from "../../contexts/NavContext";
 import { PermissionsContext } from "../../contexts/PermissionsContext";
 import { DarkModeContext } from "../../contexts/DarkModeContext";
 import { SunspotLoaderComponent } from "../Accessories/CustomLoader";
+import EmbedMethodHighlight from "../EmbedMethodHighlight";
 
 /**
  * @param {string} id of the dashboard to embed
@@ -117,7 +118,7 @@ const EmbedDashboardMarketing = ({ id }) => {
           alignItems: "center",
           width: "100%",
           height: "100%",
-          zIndex: loading ? 1 : -1,
+          zIndex: loading ? 10 : -1,
         }}
       >
         <SunspotLoaderComponent />
@@ -142,6 +143,7 @@ const EmbedDashboardMarketing = ({ id }) => {
       </div>
       } */}
       <DashboardContainer id="marketing-dashboard" active={active}>
+        <EmbedMethodHighlight />
         <Dashboard ref={makeDashboard} loading={loading} />
       </DashboardContainer>
     </>
@@ -163,8 +165,9 @@ const DashboardContainer = styled.div`
   width: 100%;
   height: 100%;
   display: flex;
+  position: relative;
   opacity: 0.1;
-  zindex: -1;
+  z-index: -1;
   animation: fadeIn ease-in ease-out 3s;
   flex-direction: column;
   align-items: center;

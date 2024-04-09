@@ -6,6 +6,8 @@ import styled from "styled-components";
 import { LookerEmbedSDK } from "@looker/embed-sdk";
 import { DarkModeContext } from "../../contexts/DarkModeContext";
 import { SunspotLoaderComponent } from "../Accessories/CustomLoader";
+import { LLMConfigContext } from "../../contexts/LLMConfigContext"
+import EmbedMethodHighlight from "../EmbedMethodHighlight";
 
 /**
  * First initialized the embed sdk using the endpoint in /backend/routes/api.js
@@ -18,28 +20,60 @@ import { SunspotLoaderComponent } from "../Accessories/CustomLoader";
 const EmbedExplore = ({ id }) => {
   const [loading, setLoading] = React.useState(true);
   const { dark } = useContext(DarkModeContext);
+  const { exploreUrl, submitNlq, setSubmitNlq } = useContext(LLMConfigContext)
+
+
+  useEffect(() => {
+    if(loading) {
+      document.getElementById("loader")
+      .style.setProperty("z-index",1)
+      document
+      .getElementById("explore-container")
+      .style.setProperty("z-index", -1);
+      document
+      .getElementById("explore-container")
+      .style.setProperty("opacity", 0.2);
+    }
+  },[loading])
 
   const animateExploreLoad = () => {
     setLoading(false);
+    document
+      .getElementById("loader")
+      .style.setProperty("z-index",-1);
     document
       .getElementById("explore-container")
       .style.setProperty("opacity", 1);
     document
       .getElementById("explore-container")
-      .style.setProperty("z-index", 1);
+      .style.setProperty("z-index", 10);
   };
 
   useEffect(() => {
     setLoading(true);
+    // document
+    //   .getElementById("loader")
+    //   .style.setProperty("z-index",1);
     document
       .getElementById("explore-container")
       .style.setProperty("opacity", 0.2);
   }, [dark]);
+
   // )
   /*
    Step 1 Initialization of the EmbedSDK happens when the user first access the application
    See App.js for reference
   */
+
+   const paramsObj = {
+      embed_domain: import.meta.env.VITE_EMBED_HOST,
+      sdk: '2',
+      // _theme: JSON.stringify({
+      //   key_color: '#174ea6',
+      //   background_color: '#f4f6fa',
+      // }),
+  }
+
   const createExplore = useCallback(
     (el) => {
       if (!el) {
@@ -49,16 +83,31 @@ const EmbedExplore = ({ id }) => {
       /*
       Step 2 Create your Explore through a simple set of chained methods
     */
-      LookerEmbedSDK.createExploreWithId(import.meta.env.VITE_EXPLORE_ID)
+      setLoading(true)
+      const urlParams = { ...paramsObj }
+
+      exploreUrl && exploreUrl
+          .split('&')
+          .map((param) => (urlParams[param.split('=')[0]] = param.split('=')[1]))
+
+      LookerEmbedSDK.createExploreWithUrl(
+        `${import.meta.env.VITE_LOOKER_HOST}/embed/explore/${import.meta.env.VITE_EXPLORE_ID}?embed_domain=${import.meta.env.VITE_EMBED_HOST}&sdk=2&theme=${dark ? import.meta.env.VITE_EMBED_THEME_DARK : import.meta.env.VITE_EMBED_THEME}&${exploreUrl}`
+      )
+      // .createExploreWithId(import.meta.env.VITE_EXPLORE_ID)
         // adds the iframe to the DOM as a child of a specific element
         .appendTo(el)
-        .withTheme(
-          dark
-            ? import.meta.env.VITE_EMBED_THEME_DARK
-            : import.meta.env.VITE_EMBED_THEME,
-        )
-        .on("explore:ready", animateExploreLoad)
-        .on("explore:run:complete", (e) => console.log(e))
+        .on("explore:ready", () => {
+          if(exploreUrl === undefined) {
+            // print(exploreUrl)
+            animateExploreLoad()
+          } 
+        })
+        .on("explore:run:complete", () => {
+          if(exploreUrl !== undefined) {
+            // print(exploreUrl)
+            animateExploreLoad()
+          } 
+        })
         // this line performs the call to the auth service to get the iframe's src='' url, places it in the iframe and the client performs the request to Looker
         .build()
         // this establishes event communication between the iframe and parent page
@@ -69,11 +118,12 @@ const EmbedExplore = ({ id }) => {
           console.error("An unexpected error occurred", error);
         });
     },
-    [dark],
+    [dark,exploreUrl],
   );
   return (
     <>
       <div
+        id="loader"
         style={{
           overflow: "hidden",
           display: "flex",
@@ -83,12 +133,14 @@ const EmbedExplore = ({ id }) => {
           alignItems: "center",
           width: "100%",
           height: "100%",
+          animation: "fadeIn ease-in ease-out 3s",
           zIndex: loading ? 1 : -1,
         }}
       >
         <SunspotLoaderComponent />
       </div>
-      <ExploreContainer id="explore-container">
+      <ExploreContainer id="explore-container" className="bg-white dark:bg-zinc-900">
+        <EmbedMethodHighlight />
         <Explore ref={createExplore}></Explore>
       </ExploreContainer>
     </>
@@ -109,6 +161,8 @@ const ExploreContainer = styled.div`
   width: 100%;
   height: 100%;
   display: flex;
+  position: relative;
+  z-index: -1;
   flex-direction: column;
   align-items: center;
   align-content: center;

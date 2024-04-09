@@ -16,12 +16,16 @@
 # Replace <> with appropriate values
 # Default server port
 
-runtime: nodejs16
-
+runtime: nodejs
+env: flex
 service: looker-embed-saas-backend
 
-network:  
-  forwarded_ports:  
-    - 8080
+runtime_config:
+  operating_system: ubuntu22
+  runtime_version: 20
+
+# network:  
+#   forwarded_ports:  
+#     - 8080
 
 entrypoint: "node ./bin/www"

@@ -8,9 +8,7 @@ export const initDB = () => {
     request = indexedDB.open("myDB", 1);
 
     request.onupgradeneeded = (e) => {
-      console.log("here");
       db = e.target.result;
-      console.log("here: ", db);
       // if the data object store doesn't exist, create it
       if (
         !db.objectStoreNames.contains("chat") &&

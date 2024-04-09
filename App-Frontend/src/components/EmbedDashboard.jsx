@@ -7,6 +7,7 @@ import { EmbedCheckAuth } from "../helpers/EmbedCheckAuth";
 import { DashboardContext } from "../contexts/DashboardContext";
 import { NavContext } from "../contexts/NavContext";
 import { DarkModeContext } from "../contexts/DarkModeContext";
+import EmbedMethodHighlight from "./EmbedMethodHighlight";
 
 /**
  * @param {number} id the id of the dashboard to embed
@@ -66,6 +67,7 @@ const EmbedDashboard = ({ id }) => {
   return (
     <>
       <DashboardContainer active={active}>
+        <EmbedMethodHighlight />
         <Dashboard ref={makeDashboard} loading={loading} />
       </DashboardContainer>
     </>
@@ -87,6 +89,7 @@ const Dashboard = styled.div`
 const DashboardContainer = styled.div`
   width: 100%;
   height: 100%;
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;

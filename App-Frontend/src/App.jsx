@@ -6,6 +6,7 @@ import { NavContext } from "./contexts/NavContext";
 import { DashboardContext } from "./contexts/DashboardContext";
 import { PermissionsContext } from "./contexts/PermissionsContext";
 import { ReportConfigContext } from "./contexts/ReportConfig";
+import { LLMConfigContext } from "./contexts/LLMConfigContext";
 import TopBanner from "./components/Layout/TopBanner";
 import Footer from "./components/Layout/Footer";
 const Home = lazy(() => import("./components/Pages/Home/Home"));
@@ -114,6 +115,7 @@ const EmbedSDKInit = (id) => {
 
 function App() {
   const [active, setActive] = useState();
+  const [showSource, setShowSource] = useState(false);
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(true);
   const [dashboard, setDashboard] = useState();
@@ -121,7 +123,11 @@ function App() {
   const [trafficSource, setTrafficSource] = useState("");
   const [userType, setUserType] = useState("basic");
   const [permissions, setPermissions] = useState([]);
-  const [queryID, setQueryID] = useState("53185");
+  const [nlq, setNlq] = useState(undefined);
+  const [nlqHistory, setNlqHistory] = useState([]);
+  const [submitNlq, setSubmitNlq] = useState(false);
+  const [exploreUrl, setExploreUrl] = useState(undefined);
+  const [queryID, setQueryID] = useState(import.meta.env.VITE_TIME_SERIES_QUERY_ID);
   const [id, setID] = useState(import.meta.env.VITE_SALES_DASHBOARD_ID);
   const [dashboardConfig, setDashboardConfig] = useState();
   const [useEmbedSdk, setUseEmbedSdk] = useState(false);
@@ -188,7 +194,7 @@ function App() {
 
   return (
     <>
-      <NavContext.Provider value={{ active, setActive }}>
+      <NavContext.Provider value={{ active, setActive, showSource, setShowSource }}>
         <DarkModeContext.Provider value={{ dark, setDark }}>
           <DashboardContext.Provider
             value={{
@@ -221,6 +227,8 @@ function App() {
                   permissions,
                 }}
               >
+                <LLMConfigContext.Provider value={{nlq,setNlq, nlqHistory, setNlqHistory, submitNlq, setSubmitNlq,exploreUrl, setExploreUrl}}>
+
                 <div className={dark ? "dark" : "light"}>
                   <div className="flex flex-col h-screen w-screen bg-white dark:bg-black">
                     <TopBanner />
@@ -230,14 +238,14 @@ function App() {
                         className={`flex-1 overflow-hidden ${
                           (active !== "Home" && active !== "Sales") ||
                           pathname === "/login"
-                            ? "p-0"
-                            : "p-4"
+                          ? "p-0"
+                          : "p-4"
                         } bg-zinc-50 dark:bg-black ${
                           pathname === "/login" ? "h-full" : "h-full"
                         }`}
                         onClick={() => setShow(false)}
-                      >
-                        <div className="grid gap-1 h-full relative overflow-y-scroll">
+                        >
+                        <div className="grid gap-1 h-full relative overflow-y-scroll bg-zinc-50 dark:bg-black">
                           <Routes>
                             <Route element={<AnimationLayout />}>
                               <Route
@@ -255,35 +263,35 @@ function App() {
                                     </Suspense>
                                   </RequireAuth>
                                 }
-                              />
+                                />
 
                               {[
                                 ...routes.looker_examples,
                                 ...routes.use_case_examples,
                               ]
-                                .slice(
-                                  1,
-                                  [
-                                    ...routes.looker_examples,
-                                    ...routes.use_case_examples,
-                                  ].length,
+                              .slice(
+                                1,
+                                [
+                                  ...routes.looker_examples,
+                                  ...routes.use_case_examples,
+                                ].length,
                                 )
                                 .map((e) => {
                                   return (
                                     <Route
-                                      path={e.url}
-                                      // default
-                                      element={
-                                        <RequireAuth>
+                                    path={e.url}
+                                    // default
+                                    element={
+                                      <RequireAuth>
                                           <Suspense fallback={<></>}>
                                             {e.component}
                                           </Suspense>
                                         </RequireAuth>
                                       }
                                       key={e.text}
-                                    />
-                                  );
-                                })}
+                                      />
+                                      );
+                                    })}
                               <Route path="/login" element={<Login />} />
                             </Route>
                           </Routes>
@@ -293,6 +301,7 @@ function App() {
                     {authed ? <Footer /> : <></>}
                   </div>
                 </div>
+                </LLMConfigContext.Provider>
               </PermissionsContext.Provider>
             </ReportConfigContext.Provider>
           </DashboardContext.Provider>
