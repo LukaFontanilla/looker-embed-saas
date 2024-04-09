@@ -16,6 +16,7 @@ import useSalesInsightsFetch from "../../../hooks/useSalesInsightsFetch";
 import { PieChart, Pie, Sector, Cell } from "recharts";
 import AccountTable from "./AccountTable";
 import QueryStatus from "./QueryStatus";
+import EmbedMethodHighlight from "../../EmbedMethodHighlight";
 
 const data = [
   { name: "Search", value: 400 },
@@ -342,7 +343,7 @@ const DashboardCardsConfig = [
 ];
 
 const CustomSalesDashboard = () => {
-  const { active } = useContext(NavContext);
+  const { active, showSource } = useContext(NavContext);
   const { dark } = useContext(DarkModeContext);
   const [viz, setViz] = useState("area");
   const [trafficSource, setTrafficSource] = useState("Search");
@@ -380,7 +381,8 @@ const CustomSalesDashboard = () => {
             ))}
       </div>
       <div className="grid gap-y-2 gap-x-0 xl:gap-4 grid-cols-1 lg:grid-cols-1 xl:grid-cols-6">
-        <div className="col-span-5 rounded-xl light:border bg-card text-card-foreground bg-white dark:bg-zinc-900 shadow hover:brightness-100 hover:drop-shadow-lg">
+        <div className="relative col-span-5 rounded-xl light:border bg-card text-card-foreground bg-white dark:bg-zinc-900 shadow hover:brightness-100 hover:drop-shadow-lg">
+          <EmbedMethodHighlight />
           <div className="flex flex-row justify-between align-middle items-center mb-4">
             <div className="flex flex-col space-y-1.5 p-6">
               <h3 className="font-semibold leading-none tracking-tight text-black dark:text-white">

@@ -22,9 +22,9 @@ const Login = () => {
   return (
     <div className="w-full h-full flex flex-row justify-start items-center">
       <div className="z-10 w-full md:w-2/6 h-full flex flex-col justify-center items-center bg-zinc-50 dark:bg-black p-2 shadow-lg dark:shadow-[#d19]">
-        <h1 className="m-6 z-1 dark:text-zinc-50 text-zinc-900">
-          Access Your Data
-        </h1>
+        <span className="text-3xl font-semibold m-6 z-1 dark:text-zinc-50 text-zinc-900">
+          Google Cloud Next Demo Portal
+        </span>
         <button
           onClick={handleLogin}
           className={`z-1 shadow ${

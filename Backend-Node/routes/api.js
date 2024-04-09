@@ -14,11 +14,14 @@
 
 var express = require("express");
 var config = require("../config");
+var url = require('url');
 var router = express.Router();
 const { LookerNodeSDK } = require("@looker/sdk-node");
 const sdk = LookerNodeSDK.init40();
 const fetch = require("node-fetch");
 const { initializeApp, cert } = require("firebase-admin/app");
+const {GoogleAuth} = require('google-auth-library');
+const googleAuth = new GoogleAuth();
 const { getAuth } = require("firebase-admin/auth");
 const {
   getFirestore,
@@ -72,7 +75,7 @@ const requireSessionCookie = (req, res, next) => {
 router.post("/check-user", async (req, res) => {
   if (req.body.user) {
     // Get the ID token passed and the CSRF token.
-    const idToken = req.body.user.idToken.toString();
+    const idToken = req.body.user.accessToken.toString();
     // Set session expiration to 1 days.
     const expiresIn = 60 * 60 * 24 * 1 * 1000;
     let sessionCookie;
@@ -99,28 +102,35 @@ router.post("/check-user", async (req, res) => {
 
         // add user to firestore db
         // with a simple example of incrementing session count for the user
-        const userRef = db.collection("users").doc(uid);
-        const userRecord = await userRef.get();
-        if (userRecord.exists) {
-          await userRef.update({
-            visits: FieldValue.increment(1),
-            vistDates: FieldValue.arrayUnion(Timestamp.now()),
-          });
-        } else {
-          Promise.all([
-            await userRef.set(userTenantPermissions),
+        try {
+
+          const userRef = db.collection("users").doc(uid);
+          const userRecord = await userRef.get();
+          if (userRecord.exists) {
             await userRef.update({
-              visits: 1,
-              vistDates: [Timestamp.now()],
-            }),
-          ]);
+              visits: FieldValue.increment(1),
+              vistDates: FieldValue.arrayUnion(Timestamp.now()),
+            });
+          } else {
+            Promise.all([
+              await userRef.set(userTenantPermissions),
+              await userRef.update({
+                visits: 1,
+                vistDates: [Timestamp.now()],
+              }),
+            ]);
+          }
+        } catch (e) {
+          console.log("There was an error here: ", e)
         }
 
         // Create session cookie and set it.
         try {
+          console.log("Trying session cookie creation")
           sessionCookie = await auth.createSessionCookie(idToken, { expiresIn });
           console.log(sessionCookie)
         } catch (e) {
+          console.log("Here")
           res.status(401).send("Invalid ID Token")
         }
 
@@ -195,7 +205,6 @@ router.get("/auth", requireSessionCookie, async (req, res) => {
 // Route for getting all the cookies
 router.get("/getcookie", (req, res) => {
   if(Object.getPrototypeOf(req.cookies) !== null && 'embedSession' in req.cookies) {
-    console.log(req.cookies)
     res.json(req.cookies)
   } else {
     console.log("No embed cookies, authenticating")
@@ -220,6 +229,38 @@ router.get("/embed-user/token", requireSessionCookie, async (req, res) => {
   };
   res.status(200).json({ ...u });
 });
+
+router.get("/nlq", requireSessionCookie, async (req,res) => {
+  try {
+    const client = await googleAuth.getIdTokenClient('https://explore-assistant-api-embed-labs-idhn2cvrpq-uc.a.run.app');
+    await client.idTokenProvider.fetchIdToken('https://explore-assistant-api-embed-labs-idhn2cvrpq-uc.a.run.app');
+    const clientHeaders = await client.getRequestHeaders();
+    // console.log("Auth: ", clientHeaders['Authorization'])
+    // console.log("Headers: ", JSON.stringify(clientHeaders))
+    const queryData = url.parse(req.url, true).query
+    const data = await fetch('https://explore-assistant-api-embed-labs-idhn2cvrpq-uc.a.run.app/',{
+      method:'POST',
+      headers: {
+        'Authorization': clientHeaders['Authorization'],
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model:'thelook',
+        explore: 'order_items',
+        question: queryData.question
+      })
+    })
+
+    console.log(data)
+      
+    const nlqData = await data.text()
+    res.status(200).send(nlqData)
+  } catch (e) {
+    res.status(404).send("Not Authenticated to call this service")
+    throw Error(`There was an error: ${e}`)
+  }
+
+})
 
 /**
  * Update the embed users permissions

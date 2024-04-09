@@ -74,7 +74,7 @@ const SSOEmbedComponent = () => {
           )}
         </DialogContent>
         <DialogActions>
-          <button onClick={() => setShow(true)}>Parse SSO Embed URL</button>
+          {/* <button onClick={() => setShow(true)}>Parse SSO Embed URL</button> */}
           <button onClick={handleEmbedClick}>Embed</button>
           <button onClick={handleClose}>Cancel</button>
         </DialogActions>

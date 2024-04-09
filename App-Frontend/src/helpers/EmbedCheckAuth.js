@@ -27,7 +27,7 @@ const fetchServerCookie = async () => {
 
 export const EmbedCheckAuth = async (type, id, url, active, dark) => {
   const cookie = await fetchServerCookie()
-  console.log("Cookie: ", cookie)
+  // console.log("Cookie: ", cookie)
   let embed;
   // add switch statement checking if dashboard, explore, or look
   // then apply the same if else below, expect repeated for each
